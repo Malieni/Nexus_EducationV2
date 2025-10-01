@@ -600,7 +600,7 @@ if not is_logged_in():
     with tab1:
         st.markdown("""
         <div class="login-container">
-            <h3>Fazer Login</h3>
+            <h3>Login</h3>
         </div>
         """, unsafe_allow_html=True)
         
@@ -644,7 +644,7 @@ if not is_logged_in():
     with tab2:
         st.markdown("""
         <div class="login-container">
-            <h3>Cadastrar Professor</h3>
+            <h3>Cadastrar</h3>
         </div>
         """, unsafe_allow_html=True)
         
