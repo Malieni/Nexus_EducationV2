@@ -899,23 +899,18 @@ else:
                     st.markdown(f"**Nome:** {curso['nome']}")
                     
                     # Buscar disciplinas do curso
-                    disciplinas = database.get_course_disciplines(curso['codigo_curso'])
+                    disciplinas = database.get_curso_disciplines(curso['codigo_curso'])
                     
                     st.markdown("---")
                     st.markdown("### 📚 Disciplinas")
                     
                     if disciplinas:
                         for disc in disciplinas:
-                            col1, col2, col3 = st.columns([3, 1, 1])
+                            col1, col2 = st.columns([4, 1])
                             with col1:
                                 st.markdown(f"**{disc['id_disciplina']}** - {disc['nome']}")
                             with col2:
                                 st.markdown(f"⏰ {disc['carga_horaria']}h")
-                            with col3:
-                                if st.button("🗑️", key=f"del_disc_{disc['id_disciplina']}", help="Remover disciplina"):
-                                    if database.delete_disciplina(disc['id_disciplina']):
-                                        st.success("Disciplina removida!")
-                                        st.rerun()
                     else:
                         st.info("Nenhuma disciplina cadastrada para este curso.")
                     
@@ -943,7 +938,7 @@ else:
                                 
                                 if database.create_disciplina(disciplina_obj.model_dump()):
                                     # Vincular ao curso
-                                    database.add_disciplina_to_curso(curso['codigo_curso'], new_disc_id.upper())
+                                    database.create_curso_disciplina_relationship(curso['codigo_curso'], new_disc_id.upper())
                                     st.success(f"✅ Disciplina {new_disc_nome} adicionada!")
                                     st.rerun()
                                 else:
