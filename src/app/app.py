@@ -873,9 +873,92 @@ else:
         st.markdown(f"**Prontuário:** {st.session_state.user_data['prontuario']}")
         st.markdown(f"**Email:** {st.session_state.user_data['email_educacional']}")
         
+        st.markdown("---")
+        
+        # Botão de Gerenciamento de Cursos
+        if st.button("⚙️ Gerenciar Cursos e Disciplinas", use_container_width=True, type="primary"):
+            st.session_state.show_gerenciar_cursos = True
+        
+        st.markdown("---")
+        
         if st.button("🚪 Logout", use_container_width=True):
             logout()
             st.rerun()
+    
+    # Modal de Gerenciamento de Cursos
+    if st.session_state.get('show_gerenciar_cursos', False):
+        st.markdown("## ⚙️ Gerenciar Cursos e Disciplinas")
+        
+        # Buscar cursos do professor
+        professor_cursos = database.get_professor_courses(st.session_state.user_data['prontuario'])
+        
+        if professor_cursos:
+            for curso in professor_cursos:
+                with st.expander(f"🎓 {curso['codigo_curso']} - {curso['nome']}", expanded=False):
+                    st.markdown(f"**Código:** {curso['codigo_curso']}")
+                    st.markdown(f"**Nome:** {curso['nome']}")
+                    
+                    # Buscar disciplinas do curso
+                    disciplinas = database.get_course_disciplines(curso['codigo_curso'])
+                    
+                    st.markdown("---")
+                    st.markdown("### 📚 Disciplinas")
+                    
+                    if disciplinas:
+                        for disc in disciplinas:
+                            col1, col2, col3 = st.columns([3, 1, 1])
+                            with col1:
+                                st.markdown(f"**{disc['id_disciplina']}** - {disc['nome']}")
+                            with col2:
+                                st.markdown(f"⏰ {disc['carga_horaria']}h")
+                            with col3:
+                                if st.button("🗑️", key=f"del_disc_{disc['id_disciplina']}", help="Remover disciplina"):
+                                    if database.delete_disciplina(disc['id_disciplina']):
+                                        st.success("Disciplina removida!")
+                                        st.rerun()
+                    else:
+                        st.info("Nenhuma disciplina cadastrada para este curso.")
+                    
+                    # Adicionar nova disciplina
+                    st.markdown("---")
+                    st.markdown("**➕ Adicionar Nova Disciplina**")
+                    
+                    with st.form(key=f"add_disc_form_{curso['codigo_curso']}"):
+                        col1, col2, col3 = st.columns([2, 2, 1])
+                        with col1:
+                            new_disc_id = st.text_input("ID Disciplina", placeholder="Ex: DISC001")
+                        with col2:
+                            new_disc_nome = st.text_input("Nome", placeholder="Ex: Programação I")
+                        with col3:
+                            new_disc_carga = st.number_input("Horas", min_value=1, max_value=200, value=60)
+                        
+                        if st.form_submit_button("➕ Adicionar Disciplina"):
+                            if new_disc_id and new_disc_nome:
+                                # Criar disciplina
+                                disciplina_obj = Disciplinas(
+                                    id_disciplina=new_disc_id.upper(),
+                                    nome=new_disc_nome,
+                                    carga_horaria=new_disc_carga
+                                )
+                                
+                                if database.create_disciplina(disciplina_obj.model_dump()):
+                                    # Vincular ao curso
+                                    database.add_disciplina_to_curso(curso['codigo_curso'], new_disc_id.upper())
+                                    st.success(f"✅ Disciplina {new_disc_nome} adicionada!")
+                                    st.rerun()
+                                else:
+                                    st.error("Erro ao criar disciplina. Verifique se o ID já existe.")
+                            else:
+                                st.error("Preencha ID e Nome da disciplina!")
+        else:
+            st.info("Você ainda não possui cursos cadastrados.")
+        
+        st.markdown("---")
+        if st.button("❌ Fechar Gerenciamento", use_container_width=True):
+            st.session_state.show_gerenciar_cursos = False
+            st.rerun()
+        
+        st.markdown("---")
     
     # Título principal
     st.markdown("### 🏠 Página Principal")
