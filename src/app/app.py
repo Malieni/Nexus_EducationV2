@@ -946,6 +946,9 @@ else:
                                 st.info("Exclusão cancelada.")
                                 st.rerun()
                     
+                    # Buscar disciplinas do curso
+                    disciplinas = database.get_curso_disciplines(curso['codigo_curso'])
+                    
                     st.markdown("---")
                     st.markdown("### 📚 Disciplinas")
                     
