@@ -1305,114 +1305,79 @@ else:
                 # Seção: Ações das Análises
                 st.markdown("---")
                 st.markdown("### 🔍 Ações das Análises")
+                st.markdown("Digite o ID da análise (visível na coluna ID da tabela acima) para visualizar detalhes ou excluir.")
                 
-                # Processar seleções do histórico
-                selected_rows_historico = response_historico.get('selected_rows', []) if response_historico else []
-                selected_ids_historico = [row.get('ID') for row in selected_rows_historico] if selected_rows_historico else []
-                
-                # Buscar dados completos das análises selecionadas
-                analises_selecionadas_historico = []
-                for analise_id in selected_ids_historico:
-                    analise_completa = database.get_analise_by_id(analise_id)
-                    if analise_completa:
-                        analises_selecionadas_historico.append(analise_completa)
-                
-                # Feedback visual
-                if analises_selecionadas_historico:
-                    nomes = [a.get('nome_aluno', 'N/A') for a in analises_selecionadas_historico]
-                    if len(nomes) == 1:
-                        st.success(f"✅ 1 análise selecionada: **{nomes[0]}**")
-                    else:
-                        st.success(f"✅ {len(nomes)} análises selecionadas: {', '.join(nomes[:3])}{'...' if len(nomes) > 3 else ''}")
-                else:
-                    st.info("📋 Selecione análises na tabela acima para usar as ações abaixo")
-                
-                col1, col2, col3 = st.columns(3)
+                col1, col2 = st.columns(2)
                 
                 with col1:
-                    if st.button("📄 Ver Detalhes Completos", use_container_width=True, key="ver_detalhes_historico"):
-                        if analises_selecionadas_historico:
-                            for analise in analises_selecionadas_historico:
-                                with st.expander(f"📋 {analise['nome_aluno']} - Score: {analise['score']}/100", expanded=True):
-                                    st.markdown("**🤖 Análise da IA:**")
-                                    st.markdown(analise['texto_analise'])
-                                    st.markdown("---")
-                                    
-                                    if analise.get('dados_estruturados_json'):
-                                        try:
-                                            dados_estruturados = json.loads(analise['dados_estruturados_json'])
-                                            st.markdown("**📊 Dados Estruturados:**")
-                                            student_info = dados_estruturados.get('student_info', {})
-                                            
-                                            col_a, col_b = st.columns(2)
-                                            with col_a:
-                                                st.markdown(f"**Nome:** {student_info.get('nome', 'N/A')}")
-                                                st.markdown(f"**RA:** {student_info.get('ra', 'N/A')}")
-                                                st.markdown(f"**CPF:** {student_info.get('cpf', 'N/A')}")
-                                            with col_b:
-                                                st.markdown(f"**Curso:** {student_info.get('curso', 'N/A')}")
-                                                st.markdown(f"**Data:** {student_info.get('data_matricula', 'N/A')}")
-                                            
-                                            with st.expander("🔍 Ver JSON Completo"):
-                                                st.json(dados_estruturados)
-                                        except:
-                                            pass
+                    st.markdown("##### 📄 Ver Detalhes da Análise")
+                    analise_id_ver = st.number_input("ID da Análise:", min_value=1, step=1, key="id_ver_detalhes")
+                    
+                    if st.button("🔍 Buscar Detalhes", use_container_width=True, key="buscar_detalhes_historico"):
+                        analise = database.get_analise_by_id(analise_id_ver)
+                        
+                        if analise:
+                            with st.expander(f"📋 {analise['nome_aluno']} - Score: {analise['score']}/100", expanded=True):
+                                st.markdown("**🤖 Análise da IA:**")
+                                st.markdown(analise['texto_analise'])
+                                st.markdown("---")
+                                
+                                # Dados estruturados se existirem
+                                if analise.get('dados_estruturados_json'):
+                                    try:
+                                        dados_estruturados = json.loads(analise['dados_estruturados_json'])
+                                        st.markdown("**📊 Dados Estruturados:**")
+                                        student_info = dados_estruturados.get('student_info', {})
+                                        
+                                        col_a, col_b = st.columns(2)
+                                        with col_a:
+                                            st.markdown(f"**Nome:** {student_info.get('nome', 'N/A')}")
+                                            st.markdown(f"**RA:** {student_info.get('ra', 'N/A')}")
+                                            st.markdown(f"**CPF:** {student_info.get('cpf', 'N/A')}")
+                                        with col_b:
+                                            st.markdown(f"**Curso:** {student_info.get('curso', 'N/A')}")
+                                            st.markdown(f"**Data:** {student_info.get('data_matricula', 'N/A')}")
+                                        
+                                        with st.expander("🔍 Ver JSON Completo"):
+                                            st.json(dados_estruturados)
+                                    except:
+                                        pass
+                                
+                                # Informações adicionais
+                                st.markdown("---")
+                                st.markdown("**📌 Informações da Análise:**")
+                                st.markdown(f"- **ID:** {analise['analise_id']}")
+                                st.markdown(f"- **Status:** {'✅ Adequado' if analise['adequado'] else '❌ Não Adequado'}")
+                                st.markdown(f"- **Matérias Restantes:** {analise.get('materias_restantes', 'N/A')}")
+                                st.markdown(f"- **Data:** {analise.get('created_at', 'N/A')}")
                         else:
-                            st.info("Selecione pelo menos uma análise na tabela")
+                            st.error(f"❌ Análise com ID {analise_id_ver} não encontrada!")
                 
                 with col2:
-                    if st.button("📊 Comparar Análises", use_container_width=True, key="comparar_historico"):
-                        if len(analises_selecionadas_historico) >= 2:
-                            st.markdown("##### 📊 Comparação de Análises")
+                    st.markdown("##### 🗑️ Excluir Análise")
+                    analise_id_excluir = st.number_input("ID da Análise:", min_value=1, step=1, key="id_excluir")
+                    
+                    if st.button("🗑️ Excluir Análise", use_container_width=True, key="excluir_analise_historico", type="primary"):
+                        # Buscar análise para confirmar
+                        analise_confirmacao = database.get_analise_by_id(analise_id_excluir)
+                        
+                        if analise_confirmacao:
+                            # Confirmar exclusão
+                            st.warning(f"⚠️ Você está prestes a excluir a análise de **{analise_confirmacao['nome_aluno']}**")
                             
-                            # Preparar dados para comparação
-                            df_compare = pd.DataFrame([{
-                                'Nome do Aluno': a['nome_aluno'],
-                                'Score': a['score'],
-                                'Adequado': '✅ Adequado' if a['adequado'] else '❌ Não Adequado'
-                            } for a in analises_selecionadas_historico])
-                            
-                            st.dataframe(df_compare, use_container_width=True)
-                            
-                            # Gráfico de comparação
-                            fig_compare = px.bar(
-                                df_compare,
-                                x='Nome do Aluno',
-                                y='Score',
-                                title="Comparação de Scores",
-                                color='Score',
-                                color_continuous_scale='RdYlGn'
-                            )
-                            st.plotly_chart(fig_compare, use_container_width=True)
+                            col_a, col_b = st.columns(2)
+                            with col_a:
+                                if st.button("✅ Confirmar Exclusão", use_container_width=True, key="confirmar_exclusao"):
+                                    if database.delete_analise(analise_id_excluir, st.session_state.user_data['prontuario']):
+                                        st.success(f"✅ Análise ID {analise_id_excluir} excluída com sucesso!")
+                                        st.rerun()
+                                    else:
+                                        st.error("❌ Erro ao excluir análise. Você pode não ter permissão.")
+                            with col_b:
+                                if st.button("❌ Cancelar", use_container_width=True, key="cancelar_exclusao"):
+                                    st.info("Exclusão cancelada.")
                         else:
-                            st.info("Selecione pelo menos 2 análises para comparar")
-                
-                with col3:
-                    if st.button("📥 Exportar Selecionadas", use_container_width=True, key="exportar_historico"):
-                        if analises_selecionadas_historico:
-                            # Preparar dados para exportação
-                            export_data = [{
-                                'ID': a['analise_id'],
-                                'Nome do Aluno': a['nome_aluno'],
-                                'Score': a['score'],
-                                'Adequado': 'Sim' if a['adequado'] else 'Não',
-                                'Matérias Restantes': a.get('materias_restantes', ''),
-                                'Data': a.get('created_at', '')
-                            } for a in analises_selecionadas_historico]
-                            
-                            df_export = pd.DataFrame(export_data)
-                            csv = df_export.to_csv(index=False)
-                            st.download_button(
-                                label="⬇️ Baixar CSV",
-                                data=csv,
-                                file_name=f"analises_{course_code}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv",
-                                mime="text/csv",
-                                use_container_width=True,
-                                key="download_csv_historico"
-                            )
-                            st.success(f"✅ {len(analises_selecionadas_historico)} análise(s) exportada(s)!")
-                        else:
-                            st.info("Selecione pelo menos uma análise para exportar")
+                            st.error(f"❌ Análise com ID {analise_id_excluir} não encontrada!")
             else:
                 st.info("Nenhuma análise encontrada no histórico deste curso.")
             
