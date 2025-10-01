@@ -922,16 +922,19 @@ else:
                         with col_a:
                             if st.button("✅ Confirmar Exclusão", key=f"confirm_delete_{curso['codigo_curso']}", type="primary"):
                                 try:
-                                    # 1. Deletar análises do curso
-                                    database.client.table("analise_curso").delete().eq("codigo_curso", curso['codigo_curso']).execute()
+                                    # 1. Deletar relacionamentos analise_curso
+                                    database.client.table("analise_curso").delete().eq("curso_fk", curso['codigo_curso']).execute()
                                     
                                     # 2. Deletar relacionamentos curso-disciplinas
-                                    database.client.table("cursos_disciplina").delete().eq("codigo_curso", curso['codigo_curso']).execute()
+                                    database.client.table("cursos_disciplina").delete().eq("curso_fk", curso['codigo_curso']).execute()
                                     
-                                    # 3. Deletar relacionamento professor-curso
-                                    database.client.table("professor_curso").delete().eq("codigo_curso", curso['codigo_curso']).eq("prontuario", st.session_state.user_data['prontuario']).execute()
+                                    # 3. Deletar relacionamentos curso-tags
+                                    database.client.table("curso_tags").delete().eq("curso_fk", curso['codigo_curso']).execute()
                                     
-                                    # 4. Deletar curso
+                                    # 4. Deletar relacionamento professor-curso
+                                    database.client.table("professor_curso").delete().eq("curso_fk", curso['codigo_curso']).eq("prontuario_professor", st.session_state.user_data['prontuario']).execute()
+                                    
+                                    # 5. Deletar curso
                                     database.client.table("cursos").delete().eq("codigo_curso", curso['codigo_curso']).execute()
                                     
                                     st.success(f"✅ Curso {curso['nome']} deletado com sucesso!")
