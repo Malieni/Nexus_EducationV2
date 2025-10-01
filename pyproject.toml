@@ -1,0 +1,30 @@
+[project]
+name = "nexus-education"
+version = "0.1.0"
+description = "Verificador de ementas de alunos com objetivo de analisar essas ementas em lote."
+authors = [
+    {name = "Malieni",email = "gui.souza.malieni@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13,<4.0"
+dependencies = [
+    "google-api-python-client (>=2.181.0,<3.0.0)",
+    "google-auth-httplib2 (>=0.2.0,<0.3.0)",
+    "google-auth-oauthlib (>=1.2.2,<2.0.0)",
+    "supabase (>=2.3.0,<3.0.0)",
+    "pydantic (>=2.11.9,<3.0.0)",
+    "streamlit (>=1.49.1,<2.0.0)",
+    "streamlit-aggrid (>=1.1.8.post1,<2.0.0)",
+    "langchain-groq (>=0.3.8,<0.4.0)",
+    "python-dotenv (>=1.1.1,<2.0.0)",
+    "pymupdf (>=1.26.4,<2.0.0)",
+    "fitz (>=0.0.1.dev2,<0.0.2)",
+    "plotly (>=5.17.0,<6.0.0)",
+    "bcrypt (>=5.0.0,<6.0.0)",
+    "docling (>=2.0.0,<3.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,17 @@
+{
+  "extraction_history": [
+    {
+      "document_type": "ifsp_ementa",
+      "extracted_fields": {
+        "curso": "TECNOLOGIA EM ANÁLISE E DESENVOLVIMENTO DE SISTEMAS",
+        "extraction_confidence": 0.2,
+        "detected_format": "ifsp_ementa"
+      },
+      "confidence": 0.2,
+      "extraction_method": "fallback_traditional",
+      "timestamp": "2025-09-30T21:07:16.762177",
+      "success": false
+    }
+  ],
+  "last_updated": "2025-09-30T21:07:16.795708"
+}

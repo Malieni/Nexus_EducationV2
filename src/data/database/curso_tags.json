@@ -1,0 +1,1 @@
+{"curso_tags": {"1": {"ct_id": 2, "curso_fk": "SPO80", "tag_fk": 1}, "2": {"ct_id": 3, "curso_fk": "SPO81", "tag_fk": 2}}, "_default": {"1": {"ct_id": 2, "curso_fk": "SPO80", "tag_fk": 1, "id": 1}, "2": {"ct_id": 3, "curso_fk": "SPO81", "tag_fk": 2, "id": 2}}}
