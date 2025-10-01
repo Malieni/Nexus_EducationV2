@@ -898,8 +898,53 @@ else:
                     st.markdown(f"**Código:** {curso['codigo_curso']}")
                     st.markdown(f"**Nome:** {curso['nome']}")
                     
-                    # Buscar disciplinas do curso
-                    disciplinas = database.get_curso_disciplines(curso['codigo_curso'])
+                    # Botão de deletar curso
+                    st.markdown("---")
+                    
+                    # Inicializar estado de confirmação de exclusão de curso
+                    confirmar_key = f"confirmar_delete_curso_{curso['codigo_curso']}"
+                    if confirmar_key not in st.session_state:
+                        st.session_state[confirmar_key] = False
+                    
+                    if not st.session_state[confirmar_key]:
+                        if st.button("🗑️ Deletar Curso", key=f"delete_curso_{curso['codigo_curso']}", type="secondary", use_container_width=True):
+                            st.session_state[confirmar_key] = True
+                            st.rerun()
+                    else:
+                        st.warning(f"⚠️ **ATENÇÃO:** Você está prestes a deletar o curso **{curso['nome']}**!")
+                        st.warning("🔴 **Esta ação irá deletar em cascata:**")
+                        st.markdown("- ❌ Todas as análises relacionadas a este curso")
+                        st.markdown("- ❌ Todos os relacionamentos com disciplinas")
+                        st.markdown("- ❌ O vínculo do professor com este curso")
+                        st.markdown("- ❌ O curso em si")
+                        
+                        col_a, col_b = st.columns(2)
+                        with col_a:
+                            if st.button("✅ Confirmar Exclusão", key=f"confirm_delete_{curso['codigo_curso']}", type="primary"):
+                                try:
+                                    # 1. Deletar análises do curso
+                                    database.client.table("analise_curso").delete().eq("codigo_curso", curso['codigo_curso']).execute()
+                                    
+                                    # 2. Deletar relacionamentos curso-disciplinas
+                                    database.client.table("cursos_disciplina").delete().eq("codigo_curso", curso['codigo_curso']).execute()
+                                    
+                                    # 3. Deletar relacionamento professor-curso
+                                    database.client.table("professor_curso").delete().eq("codigo_curso", curso['codigo_curso']).eq("prontuario", st.session_state.user_data['prontuario']).execute()
+                                    
+                                    # 4. Deletar curso
+                                    database.client.table("cursos").delete().eq("codigo_curso", curso['codigo_curso']).execute()
+                                    
+                                    st.success(f"✅ Curso {curso['nome']} deletado com sucesso!")
+                                    st.session_state[confirmar_key] = False
+                                    st.rerun()
+                                except Exception as e:
+                                    st.error(f"❌ Erro ao deletar curso: {str(e)}")
+                                    st.session_state[confirmar_key] = False
+                        with col_b:
+                            if st.button("❌ Cancelar", key=f"cancel_delete_{curso['codigo_curso']}"):
+                                st.session_state[confirmar_key] = False
+                                st.info("Exclusão cancelada.")
+                                st.rerun()
                     
                     st.markdown("---")
                     st.markdown("### 📚 Disciplinas")
