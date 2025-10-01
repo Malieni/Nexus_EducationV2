@@ -889,6 +889,51 @@ else:
     if st.session_state.get('show_gerenciar_cursos', False):
         st.markdown("## ⚙️ Gerenciar Cursos e Disciplinas")
         
+        # Seção: Adicionar Novo Curso
+        st.markdown("### ➕ Adicionar Novo Curso")
+        
+        with st.form("add_new_curso_form"):
+            col1, col2 = st.columns(2)
+            with col1:
+                novo_codigo_curso = st.text_input("Código do Curso", placeholder="Ex: ADS", max_chars=50)
+            with col2:
+                novo_nome_curso = st.text_input("Nome do Curso", placeholder="Ex: Análise e Desenvolvimento de Sistemas")
+            
+            nova_descricao_curso = st.text_area("Descrição do Curso", placeholder="Descreva o curso...", height=100)
+            
+            if st.form_submit_button("✅ Criar Curso", use_container_width=True, type="primary"):
+                if novo_codigo_curso and novo_nome_curso and nova_descricao_curso:
+                    try:
+                        # Criar curso
+                        curso_obj = Cursos(
+                            codigo_curso=novo_codigo_curso.upper(),
+                            nome=novo_nome_curso,
+                            descricao_curso=nova_descricao_curso
+                        )
+                        
+                        # Verificar se curso já existe
+                        curso_existente = database.get_curso_by_codigo(novo_codigo_curso.upper())
+                        
+                        if not curso_existente:
+                            # Criar curso
+                            database.create_curso(curso_obj.model_dump())
+                        
+                        # Vincular professor ao curso
+                        database.create_professor_curso_relationship(
+                            st.session_state.user_data['prontuario'],
+                            novo_codigo_curso.upper()
+                        )
+                        
+                        st.success(f"✅ Curso {novo_nome_curso} criado e vinculado com sucesso!")
+                        st.rerun()
+                    except Exception as e:
+                        st.error(f"❌ Erro ao criar curso: {str(e)}")
+                else:
+                    st.error("Preencha todos os campos!")
+        
+        st.markdown("---")
+        st.markdown("### 📚 Meus Cursos")
+        
         # Buscar cursos do professor
         professor_cursos = database.get_professor_courses(st.session_state.user_data['prontuario'])
         
