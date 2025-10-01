@@ -1355,29 +1355,49 @@ else:
                 
                 with col2:
                     st.markdown("##### 🗑️ Excluir Análise")
+                    
+                    # Inicializar estado de confirmação
+                    if 'confirmar_exclusao_id' not in st.session_state:
+                        st.session_state.confirmar_exclusao_id = None
+                    
                     analise_id_excluir = st.number_input("ID da Análise:", min_value=1, step=1, key="id_excluir")
                     
-                    if st.button("🗑️ Excluir Análise", use_container_width=True, key="excluir_analise_historico", type="primary"):
-                        # Buscar análise para confirmar
-                        analise_confirmacao = database.get_analise_by_id(analise_id_excluir)
-                        
-                        if analise_confirmacao:
-                            # Confirmar exclusão
-                            st.warning(f"⚠️ Você está prestes a excluir a análise de **{analise_confirmacao['nome_aluno']}**")
+                    # Se não está em modo de confirmação
+                    if st.session_state.confirmar_exclusao_id is None:
+                        if st.button("🗑️ Excluir Análise", use_container_width=True, key="excluir_analise_historico", type="primary"):
+                            # Buscar análise para confirmar
+                            analise_confirmacao = database.get_analise_by_id(analise_id_excluir)
                             
-                            col_a, col_b = st.columns(2)
-                            with col_a:
-                                if st.button("✅ Confirmar Exclusão", use_container_width=True, key="confirmar_exclusao"):
-                                    if database.delete_analise(analise_id_excluir, st.session_state.user_data['prontuario']):
-                                        st.success(f"✅ Análise ID {analise_id_excluir} excluída com sucesso!")
-                                        st.rerun()
-                                    else:
-                                        st.error("❌ Erro ao excluir análise. Você pode não ter permissão.")
-                            with col_b:
-                                if st.button("❌ Cancelar", use_container_width=True, key="cancelar_exclusao"):
-                                    st.info("Exclusão cancelada.")
-                        else:
-                            st.error(f"❌ Análise com ID {analise_id_excluir} não encontrada!")
+                            if analise_confirmacao:
+                                st.session_state.confirmar_exclusao_id = analise_id_excluir
+                                st.session_state.confirmar_exclusao_nome = analise_confirmacao['nome_aluno']
+                                st.rerun()
+                            else:
+                                st.error(f"❌ Análise com ID {analise_id_excluir} não encontrada!")
+                    
+                    # Se está em modo de confirmação
+                    else:
+                        st.warning(f"⚠️ Você está prestes a excluir a análise de **{st.session_state.confirmar_exclusao_nome}**")
+                        st.warning(f"**ID: {st.session_state.confirmar_exclusao_id}**")
+                        
+                        col_a, col_b = st.columns(2)
+                        with col_a:
+                            if st.button("✅ Confirmar Exclusão", use_container_width=True, key="confirmar_exclusao_btn", type="primary"):
+                                if database.delete_analise(st.session_state.confirmar_exclusao_id, st.session_state.user_data['prontuario']):
+                                    st.success(f"✅ Análise ID {st.session_state.confirmar_exclusao_id} excluída com sucesso!")
+                                    st.session_state.confirmar_exclusao_id = None
+                                    st.session_state.confirmar_exclusao_nome = None
+                                    st.rerun()
+                                else:
+                                    st.error("❌ Erro ao excluir análise. Você pode não ter permissão.")
+                                    st.session_state.confirmar_exclusao_id = None
+                                    st.session_state.confirmar_exclusao_nome = None
+                        with col_b:
+                            if st.button("❌ Cancelar", use_container_width=True, key="cancelar_exclusao_btn"):
+                                st.session_state.confirmar_exclusao_id = None
+                                st.session_state.confirmar_exclusao_nome = None
+                                st.info("Exclusão cancelada.")
+                                st.rerun()
             else:
                 st.info("Nenhuma análise encontrada no histórico deste curso.")
             
