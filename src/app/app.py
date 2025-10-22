@@ -765,38 +765,6 @@ def process_analysis_with_ai(ementa_id: int, course_code: str, professor_prontua
 # ==================== INTERFACE PRINCIPAL ====================
 
 # Cabeçalho principal
-st.markdown("""
-<div class="main-header">
-    <div class="logo-container">
-        <svg class="logo-network" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" style="width: 80px; height: 50px; margin: 0 auto 1rem; display: block;">
-            <!-- Nó superior -->
-            <circle cx="30" cy="8" r="4" fill="#5271ff" stroke="none"/>
-            
-            <!-- Nós do meio -->
-            <circle cx="15" cy="20" r="4" fill="#5271ff" stroke="none"/>
-            <circle cx="45" cy="20" r="4" fill="#5271ff" stroke="none"/>
-            
-            <!-- Nós inferiores -->
-            <circle cx="8" cy="32" r="4" fill="#5271ff" stroke="none"/>
-            <circle cx="22" cy="32" r="4" fill="#5271ff" stroke="none"/>
-            <circle cx="38" cy="32" r="4" fill="#5271ff" stroke="none"/>
-            <circle cx="52" cy="32" r="4" fill="#5271ff" stroke="none"/>
-            
-            <!-- Conexões -->
-            <line x1="30" y1="12" x2="15" y2="16" stroke="#5271ff" stroke-width="2"/>
-            <line x1="30" y1="12" x2="45" y2="16" stroke="#5271ff" stroke-width="2"/>
-            <line x1="15" y1="24" x2="8" y2="28" stroke="#5271ff" stroke-width="2"/>
-            <line x1="15" y1="24" x2="22" y2="28" stroke="#5271ff" stroke-width="2"/>
-            <line x1="45" y1="24" x2="38" y2="28" stroke="#5271ff" stroke-width="2"/>
-            <line x1="45" y1="24" x2="52" y2="28" stroke="#5271ff" stroke-width="2"/>
-        </svg>
-        <h1 class="logo-text" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Nexus</h1>
-        <p class="logo-subtitle" style="font-size: 1rem; margin-bottom: 1rem;">EDUCATION</p>
-        <div class="logo-line" style="width: 80px; margin: 1rem auto 0;"></div>
-    </div>
-    <p style="color: #000000; opacity: 0.7; margin-top: 1rem;">Sistema de Análise de Ementas Acadêmicas</p>
-</div>
-""", unsafe_allow_html=True)
 
 # Verificar se usuário está logado
 if not is_logged_in():
