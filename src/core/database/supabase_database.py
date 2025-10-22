@@ -517,7 +517,11 @@ class SupabaseDatabase:
             return False
     
     def get_analises_by_curso_usando_relacionamento(self, curso_codigo: str) -> List[Dict]:
-        """Busca análises de um curso usando a tabela de relacionamento"""
+        """Busca análises de um curso usando a tabela de relacionamento
+        
+        ATENÇÃO: Este método retorna TODAS as análises do curso, independentemente do professor.
+        Para manter a privacidade dos dados, prefira usar get_analises_by_curso_and_professor_usando_relacionamento.
+        """
         try:
             print(f"Buscando análises do curso {curso_codigo} usando relacionamento")
             
@@ -550,7 +554,13 @@ class SupabaseDatabase:
             return []
     
     def get_analises_by_curso_and_professor_usando_relacionamento(self, curso_codigo: str, professor_id: str) -> List[Dict]:
-        """Busca análises de um curso específico feitas por um professor usando relacionamento"""
+        """Busca análises de um curso específico feitas por um professor usando relacionamento
+        
+        IMPORTANTE: Este método garante que apenas as análises do professor específico sejam retornadas.
+        Use este método ao invés de get_analises_by_curso_usando_relacionamento para manter a privacidade dos dados.
+        
+        SEGURANÇA: Este método inclui validação de acesso do professor ao curso.
+        """
         try:
             print(f"\n{'='*60}")
             print(f"🔍 BUSCANDO ANÁLISES")
@@ -558,6 +568,17 @@ class SupabaseDatabase:
             print(f"Professor ID: {professor_id}")
             print(f"Código do Curso: {curso_codigo}")
             print(f"Usando tabela de relacionamento: analise_curso")
+            
+            # VALIDAÇÃO DE SEGURANÇA: Verificar se o professor tem acesso a este curso
+            professor_cursos = self.get_professor_courses(professor_id)
+            curso_codes = [curso['codigo_curso'] for curso in professor_cursos]
+            
+            if curso_codigo not in curso_codes:
+                print(f"🚫 ACESSO NEGADO: Professor {professor_id} não tem permissão para acessar curso {curso_codigo}")
+                print(f"📋 Cursos permitidos: {curso_codes}")
+                return []
+            
+            print(f"✅ ACESSO AUTORIZADO: Professor tem permissão para acessar curso {curso_codigo}")
             
             # Query com JOIN usando a tabela de relacionamento
             # Especificar qual relacionamento usar com ementas para evitar ambiguidade
@@ -893,13 +914,34 @@ class SupabaseDatabase:
     # ==================== RELACIONAMENTOS ====================
     
     def create_professor_curso_relationship(self, prontuario_professor: str, codigo_curso: str) -> bool:
-        """Cria relacionamento entre professor e curso"""
+        """Cria relacionamento entre professor e curso
+        
+        Retorna:
+            bool: True se criou com sucesso, False se já existia ou houve erro
+        """
         try:
+            # Verificar se o relacionamento já existe
+            existing = self.client.table("professor_curso").select("*").eq(
+                "prontuario_professor", prontuario_professor
+            ).eq("curso_fk", codigo_curso).execute()
+            
+            if existing.data:
+                print(f"⚠️ Relacionamento já existe: Professor {prontuario_professor} já está associado ao curso {codigo_curso}")
+                return False  # Relacionamento já existe, mas não é um erro
+            
+            # Criar novo relacionamento
             response = self.client.table("professor_curso").insert({
                 "prontuario_professor": prontuario_professor,
                 "curso_fk": codigo_curso
             }).execute()
-            return len(response.data) > 0
+            
+            if response.data:
+                print(f"✅ Relacionamento criado: Professor {prontuario_professor} associado ao curso {codigo_curso}")
+                return True
+            else:
+                print(f"❌ Falha ao criar relacionamento: {prontuario_professor} -> {codigo_curso}")
+                return False
+                
         except Exception as e:
             print(f"Erro ao criar relacionamento professor-curso: {e}")
             return False
