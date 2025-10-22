@@ -42,71 +42,291 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# CSS personalizado para melhorar a aparência
+# CSS personalizado minimalista com as cores especificadas
 st.markdown("""
 <style>
+    /* Reset e configurações globais */
+    .stApp {
+        background-color: #ffffff;
+    }
+    
     .main-header {
         text-align: center;
         padding: 2rem 0;
-        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 10px;
+        background-color: #ffffff;
+        color: #000000;
+        border-radius: 0;
         margin-bottom: 2rem;
+        border-bottom: 2px solid #5271ff;
     }
+    
     .login-container {
         max-width: 500px;
         margin: 0 auto;
         padding: 2rem;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #5271ff;
+        border-radius: 8px;
+        background-color: #ffffff;
+        box-shadow: 0 2px 8px rgba(82, 113, 255, 0.1);
     }
+    
     .course-card {
-        border: 1px solid #ddd;
+        border: 1px solid #5271ff;
         border-radius: 8px;
         padding: 1rem;
         margin: 0.5rem 0;
-        background-color: #f8f9fa;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        background-color: #ffffff;
+        box-shadow: 0 1px 3px rgba(82, 113, 255, 0.1);
     }
+    
     .course-card h4 {
         margin: 0 0 0.5rem 0;
-        color: #2c3e50;
+        color: #000000;
+        font-weight: 600;
     }
+    
     .course-card p {
         margin: 0;
-        color: #7f8c8d;
+        color: #000000;
+        opacity: 0.7;
     }
+    
     .discipline-item {
         background-color: #ffffff;
-        border: 1px solid #e9ecef;
+        border: 1px solid #5271ff;
         border-radius: 6px;
         padding: 0.75rem;
         margin: 0.25rem 0;
+        transition: all 0.2s ease;
     }
+    
     .discipline-item:hover {
-        background-color: #f8f9fa;
+        background-color: rgba(82, 113, 255, 0.05);
+        border-color: #5271ff;
     }
+    
     .upload-area {
-        border: 2px dashed #ccc;
-        border-radius: 10px;
+        border: 2px dashed #5271ff;
+        border-radius: 8px;
         padding: 2rem;
         text-align: center;
-        background-color: #f9f9f9;
+        background-color: #ffffff;
+        color: #000000;
     }
+    
     .success-message {
-        background-color: #d4edda;
-        color: #155724;
+        background-color: rgba(82, 113, 255, 0.1);
+        color: #000000;
         padding: 1rem;
-        border-radius: 5px;
-        border: 1px solid #c3e6cb;
+        border-radius: 8px;
+        border-left: 4px solid #5271ff;
     }
+    
     .error-message {
-        background-color: #f8d7da;
-        color: #721c24;
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #000000;
         padding: 1rem;
-        border-radius: 5px;
-        border: 1px solid #f5c6cb;
+        border-radius: 8px;
+        border-left: 4px solid #dc3545;
+    }
+    
+    .info-message {
+        background-color: rgba(82, 113, 255, 0.1);
+        color: #000000;
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 4px solid #5271ff;
+    }
+    
+    .warning-message {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: #000000;
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 4px solid #ffc107;
+    }
+    
+    .metric-card {
+        background-color: #ffffff;
+        border: 1px solid #5271ff;
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+        box-shadow: 0 1px 3px rgba(82, 113, 255, 0.1);
+    }
+    
+    .metric-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #5271ff;
+        margin: 0;
+    }
+    
+    .metric-label {
+        font-size: 0.9rem;
+        color: #000000;
+        opacity: 0.7;
+        margin: 0;
+    }
+    
+    .sidebar-content {
+        background-color: #ffffff;
+        padding: 1rem;
+        border-radius: 8px;
+        border: 1px solid #5271ff;
+    }
+    
+    .main-content {
+        background-color: #ffffff;
+        padding: 2rem;
+        border-radius: 8px;
+        border: 1px solid #5271ff;
+    }
+    
+    /* Botões personalizados */
+    .stButton > button {
+        background-color: #5271ff;
+        color: #ffffff;
+        border: none;
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    
+    .stButton > button:hover {
+        background-color: #4056e6;
+        box-shadow: 0 2px 4px rgba(82, 113, 255, 0.2);
+    }
+    
+    /* Sidebar styling */
+    .css-1d391kg {
+        background-color: #ffffff;
+        border-right: 2px solid #5271ff;
+    }
+    
+    /* Input styling */
+    .stTextInput > div > div > input {
+        border: 1px solid #5271ff;
+        border-radius: 6px;
+        background-color: #ffffff;
+        color: #000000;
+    }
+    
+    .stTextInput > div > div > input:focus {
+        border-color: #5271ff;
+        box-shadow: 0 0 0 2px rgba(82, 113, 255, 0.2);
+    }
+    
+    /* Selectbox styling */
+    .stSelectbox > div > div > div {
+        border: 1px solid #5271ff;
+        border-radius: 6px;
+        background-color: #ffffff;
+        color: #000000;
+    }
+    
+    /* Expander styling */
+    .streamlit-expanderHeader {
+        background-color: #ffffff;
+        border: 1px solid #5271ff;
+        border-radius: 6px;
+        color: #000000;
+    }
+    
+    .streamlit-expanderContent {
+        background-color: #ffffff;
+        border: 1px solid #5271ff;
+        border-top: none;
+        border-radius: 0 0 6px 6px;
+    }
+    
+    /* Logo styling */
+    .logo-container {
+        text-align: center;
+        padding: 1rem 0;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid #5271ff;
+    }
+    
+    .logo-network {
+        width: 60px;
+        height: 40px;
+        margin: 0 auto 1rem;
+        display: block;
+    }
+    
+    .logo-text {
+        color: #000000;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+    }
+    
+    .logo-subtitle {
+        color: #000000;
+        font-size: 0.8rem;
+        font-weight: 400;
+        margin: 0.25rem 0;
+        opacity: 0.8;
+    }
+    
+    .logo-line {
+        width: 60px;
+        height: 2px;
+        background-color: #5271ff;
+        margin: 0.5rem auto 0;
+        border-radius: 1px;
+    }
+    
+    /* Tabs styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        background-color: #ffffff;
+        border: 1px solid #5271ff;
+        color: #000000;
+        border-radius: 6px;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background-color: #5271ff;
+        color: #ffffff;
+    }
+    
+    /* Dataframe styling */
+    .stDataFrame {
+        border: 1px solid #5271ff;
+        border-radius: 6px;
+    }
+    
+    /* Metrics styling */
+    [data-testid="metric-container"] {
+        background-color: #ffffff;
+        border: 1px solid #5271ff;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 1px 3px rgba(82, 113, 255, 0.1);
+    }
+    
+    [data-testid="metric-container"] > div {
+        color: #000000;
+    }
+    
+    [data-testid="metric-value"] {
+        color: #5271ff;
+        font-weight: 700;
+    }
+    
+    /* Remove default Streamlit styling */
+    .stApp > header {
+        background-color: #ffffff;
+    }
+    
+    .stApp > header > div {
+        background-color: #ffffff;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -198,7 +418,7 @@ def register_professor(professor_data: Dict) -> bool:
         # Hash da senha
         professor_data['senha'] = hash_password(professor_data['senha'])
         
-        # Criar professor - remover cursos dos dados do professor
+        # Criar professor
         professor_info = {
             'prontuario': professor_data['prontuario'],
             'nome': professor_data['nome'],
@@ -208,36 +428,6 @@ def register_professor(professor_data: Dict) -> bool:
         
         professor = Professor(**professor_info)
         database.create_professor(convert_datetime_for_json(professor.model_dump()))
-        
-        # Cadastrar cursos do professor
-        for curso_data in professor_data.get('cursos', []):
-            # Verificar se curso já existe
-            existing_curso = database.get_curso_by_codigo(curso_data['codigo_curso'])
-            if not existing_curso:
-                # Criar curso
-                curso = Cursos(**curso_data)
-                database.create_curso(convert_datetime_for_json(curso.model_dump()))
-            
-            # Associar professor ao curso
-            database.create_professor_curso_relationship(
-                professor_data['prontuario'],
-                curso_data['codigo_curso']
-            )
-            
-            # Cadastrar disciplinas do curso
-            for disciplina_data in curso_data.get('disciplinas', []):
-                # Verificar se disciplina já existe
-                existing_disciplina = database.get_disciplina_by_id(disciplina_data['id_disciplina'])
-                if not existing_disciplina:
-                    # Criar disciplina
-                    disciplina = Disciplinas(**disciplina_data)
-                    database.create_disciplina(convert_datetime_for_json(disciplina.model_dump()))
-                
-                # Associar disciplina ao curso
-                database.create_curso_disciplina_relationship(
-                    curso_data['codigo_curso'],
-                    disciplina_data['id_disciplina']
-                )
         
         return True
     except Exception as e:
@@ -577,8 +767,34 @@ def process_analysis_with_ai(ementa_id: int, course_code: str, professor_prontua
 # Cabeçalho principal
 st.markdown("""
 <div class="main-header">
-    <h1>🎓 Nexus Education</h1>
-    <p>Sistema de Análise de Ementas Acadêmicas</p>
+    <div class="logo-container">
+        <svg class="logo-network" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg" style="width: 80px; height: 50px; margin: 0 auto 1rem; display: block;">
+            <!-- Nó superior -->
+            <circle cx="30" cy="8" r="4" fill="#5271ff" stroke="none"/>
+            
+            <!-- Nós do meio -->
+            <circle cx="15" cy="20" r="4" fill="#5271ff" stroke="none"/>
+            <circle cx="45" cy="20" r="4" fill="#5271ff" stroke="none"/>
+            
+            <!-- Nós inferiores -->
+            <circle cx="8" cy="32" r="4" fill="#5271ff" stroke="none"/>
+            <circle cx="22" cy="32" r="4" fill="#5271ff" stroke="none"/>
+            <circle cx="38" cy="32" r="4" fill="#5271ff" stroke="none"/>
+            <circle cx="52" cy="32" r="4" fill="#5271ff" stroke="none"/>
+            
+            <!-- Conexões -->
+            <line x1="30" y1="12" x2="15" y2="16" stroke="#5271ff" stroke-width="2"/>
+            <line x1="30" y1="12" x2="45" y2="16" stroke="#5271ff" stroke-width="2"/>
+            <line x1="15" y1="24" x2="8" y2="28" stroke="#5271ff" stroke-width="2"/>
+            <line x1="15" y1="24" x2="22" y2="28" stroke="#5271ff" stroke-width="2"/>
+            <line x1="45" y1="24" x2="38" y2="28" stroke="#5271ff" stroke-width="2"/>
+            <line x1="45" y1="24" x2="52" y2="28" stroke="#5271ff" stroke-width="2"/>
+        </svg>
+        <h1 class="logo-text" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Nexus</h1>
+        <p class="logo-subtitle" style="font-size: 1rem; margin-bottom: 1rem;">EDUCATION</p>
+        <div class="logo-line" style="width: 80px; margin: 1rem auto 0;"></div>
+    </div>
+    <p style="color: #000000; opacity: 0.7; margin-top: 1rem;">Sistema de Análise de Ementas Acadêmicas</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -656,176 +872,7 @@ if not is_logged_in():
             senha = st.text_input("Senha", type="password")
             confirmar_senha = st.text_input("Confirmar Senha", type="password")
             
-            st.markdown("#### Cursos que Leciona")
-            st.markdown("Adicione os cursos que você leciona:")
-            
-            # Interface para adicionar cursos
-            if 'cursos_temp' not in st.session_state:
-                st.session_state.cursos_temp = []
-            
-            # Formulário para adicionar curso
-            with st.container():
-                st.markdown("**➕ Adicionar Novo Curso**")
-                col1, col2, col3 = st.columns([2, 2, 1])
-            with col1:
-                codigo_curso = st.text_input("Código do Curso", placeholder="Ex: ENG001", key="new_course_code")
-            with col2:
-                nome_curso = st.text_input("Nome do Curso", placeholder="Ex: Engenharia de Software", key="new_course_name")
-            with col3:
-                if st.form_submit_button("➕ Adicionar", key="add_course"):
-                    if codigo_curso and nome_curso:
-                        # Verificar se código já existe
-                        codigo_existe = any(curso['codigo_curso'] == codigo_curso for curso in st.session_state.cursos_temp)
-                        if codigo_existe:
-                            st.error("Código do curso já existe!")
-                        else:
-                            curso_data = {
-                                'codigo_curso': codigo_curso.upper(),
-                                'nome': nome_curso,
-                                'descricao_curso': f"Curso de {nome_curso}",
-                                'disciplinas': []
-                            }
-                            st.session_state.cursos_temp.append(curso_data)
-                            st.success(f"✅ Curso {nome_curso} adicionado!")
-                            st.rerun()
-                    else:
-                        st.error("Preencha todos os campos!")
-            
-            # Exibir cursos adicionados com melhor interface
-            if st.session_state.cursos_temp:
-                st.markdown("---")
-                st.markdown("### 📚 Cursos Adicionados")
-                
-                for i, curso in enumerate(st.session_state.cursos_temp):
-                    with st.container():
-                        st.markdown(f"""
-                        <div class="course-card">
-                            <h4>🎓 {curso['codigo_curso']} - {curso['nome']}</h4>
-                            <p><strong>Disciplinas:</strong> {len(curso['disciplinas'])} cadastradas</p>
-                        </div>
-                        """, unsafe_allow_html=True)
-                        
-                        # Botões de ação do curso
-                        col1, col2, col3 = st.columns([1, 1, 1])
-                        with col1:
-                            if st.form_submit_button("🗑️ Remover Curso", key=f"remove_course_{i}"):
-                                st.session_state.cursos_temp.pop(i)
-                                st.success("Curso removido!")
-                                st.rerun()
-                        with col2:
-                            if st.form_submit_button("📝 Gerenciar Disciplinas", key=f"manage_disc_{i}"):
-                                if f"show_disc_{i}" not in st.session_state:
-                                    st.session_state[f"show_disc_{i}"] = True
-                                else:
-                                    st.session_state[f"show_disc_{i}"] = not st.session_state[f"show_disc_{i}"]
-                                st.rerun()
-                        with col3:
-                            if st.form_submit_button("📊 Ver Disciplinas", key=f"view_disc_{i}"):
-                                st.session_state[f"show_disc_{i}"] = True
-                                st.rerun()
-            
-                # Seção de gerenciamento de disciplinas
-                for i, curso in enumerate(st.session_state.cursos_temp):
-                    if st.session_state.get(f"show_disc_{i}", False):
-                        st.markdown(f"---")
-                        st.markdown(f"### 📖 Disciplinas - {curso['nome']} ({curso['codigo_curso']})")
-                        
-                        # Listar disciplinas existentes
-                        if curso['disciplinas']:
-                            st.markdown("**Disciplinas Cadastradas:**")
-                            for j, disciplina in enumerate(curso['disciplinas']):
-                                st.markdown(f"""
-                                <div class="discipline-item">
-                                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                                        <div>
-                                            <strong>📚 {disciplina['id_disciplina']} - {disciplina['nome']}</strong><br>
-                                            <small>⏰ {disciplina['carga_horaria']} horas</small>
-                                        </div>
-                                        <div>
-                                            <button onclick="editDiscipline({i}, {j})" style="margin-right: 5px;">✏️</button>
-                                            <button onclick="deleteDiscipline({i}, {j})">🗑️</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                """, unsafe_allow_html=True)
-                                
-                                # Botões de ação (mantidos para funcionalidade)
-                                col1, col2 = st.columns([1, 1])
-                                with col1:
-                                    if st.form_submit_button("✏️ Editar", key=f"edit_disc_{i}_{j}"):
-                                        st.session_state[f"editing_disc_{i}_{j}"] = True
-                                        st.rerun()
-                                with col2:
-                                    if st.form_submit_button("🗑️ Remover", key=f"delete_disc_{i}_{j}"):
-                                        curso['disciplinas'].pop(j)
-                                        st.success(f"Disciplina {disciplina['nome']} removida!")
-                                        st.rerun()
-                        else:
-                            st.info("Nenhuma disciplina cadastrada para este curso.")
-                        
-                        # Formulário para adicionar disciplina
-                        st.markdown("**➕ Adicionar Nova Disciplina**")
-                        col1, col2, col3, col4 = st.columns([2, 2, 1, 1])
-                        with col1:
-                            id_disciplina = st.text_input(f"ID Disciplina", key=f"disc_id_{i}", placeholder="Ex: DISC001")
-                        with col2:
-                            nome_disciplina = st.text_input(f"Nome Disciplina", key=f"disc_nome_{i}", placeholder="Ex: Programação I")
-                        with col3:
-                            carga_horaria = st.number_input(f"Carga Horária", min_value=1, max_value=200, key=f"disc_carga_{i}", value=60)
-                        with col4:
-                            if st.form_submit_button("➕ Adicionar", key=f"add_disc_{i}"):
-                                if id_disciplina and nome_disciplina and carga_horaria:
-                                    # Verificar se ID já existe neste curso
-                                    id_existe = any(disc['id_disciplina'] == id_disciplina for disc in curso['disciplinas'])
-                                    if id_existe:
-                                        st.error("ID da disciplina já existe neste curso!")
-                                    else:
-                                        disciplina_data = {
-                                            'id_disciplina': id_disciplina.upper(),
-                                            'nome': nome_disciplina,
-                                            'carga_horaria': carga_horaria
-                                        }
-                                        curso['disciplinas'].append(disciplina_data)
-                                        st.success(f"✅ Disciplina {nome_disciplina} adicionada!")
-                                        st.rerun()
-                                else:
-                                    st.error("Preencha todos os campos!")
-                        
-                        # Botão para fechar seção
-                        if st.form_submit_button("❌ Fechar Gerenciamento", key=f"close_disc_{i}"):
-                            st.session_state[f"show_disc_{i}"] = False
-                            st.rerun()
-            else:
-                st.info("👆 Adicione pelo menos um curso para continuar.")
-            
-            # Resumo dos cursos e disciplinas
-            if st.session_state.cursos_temp:
-                st.markdown("---")
-                st.markdown("### 📊 Resumo do Cadastro")
-                
-                total_cursos = len(st.session_state.cursos_temp)
-                total_disciplinas = sum(len(curso['disciplinas']) for curso in st.session_state.cursos_temp)
-                total_horas = sum(sum(disc['carga_horaria'] for disc in curso['disciplinas']) for curso in st.session_state.cursos_temp)
-                
-                col1, col2, col3, col4 = st.columns(4)
-                with col1:
-                    st.metric("📚 Cursos", total_cursos)
-                with col2:
-                    st.metric("📖 Disciplinas", total_disciplinas)
-                with col3:
-                    st.metric("⏰ Total de Horas", f"{total_horas}h")
-                with col4:
-                    st.metric("📈 Média/Curso", f"{total_disciplinas/total_cursos:.1f}" if total_cursos > 0 else "0")
-                
-                # Lista resumida
-                st.markdown("**Lista de Cursos e Disciplinas:**")
-                for i, curso in enumerate(st.session_state.cursos_temp):
-                    with st.expander(f"🎓 {curso['codigo_curso']} - {curso['nome']} ({len(curso['disciplinas'])} disciplinas)"):
-                        if curso['disciplinas']:
-                            for disciplina in curso['disciplinas']:
-                                st.write(f"  📚 {disciplina['id_disciplina']} - {disciplina['nome']} ({disciplina['carga_horaria']}h)")
-                        else:
-                            st.write("  ℹ️ Nenhuma disciplina cadastrada")
+            st.info("ℹ️ Após o cadastro, você poderá selecionar os cursos que leciona na área do professor.")
             
             # Botão de cadastro
             if st.form_submit_button("Cadastrar", use_container_width=True):
@@ -836,21 +883,18 @@ if not is_logged_in():
                         st.error("Email inválido!")
                     elif len(prontuario) != 9:
                         st.error("Prontuário deve ter 9 dígitos!")
-                    elif not st.session_state.cursos_temp:
-                        st.error("Adicione pelo menos um curso!")
                     else:
                         professor_data = {
                             'prontuario': prontuario,
                             'nome': nome,
                             'email_educacional': email,
-                            'senha': senha,
-                            'cursos': st.session_state.cursos_temp
+                            'senha': senha
                         }
                         
-                        if register_professor(professor_data):
+                        success = register_professor(professor_data)
+                        if success:
                             st.success("🎉 Cadastro realizado com sucesso!")
                             st.info("🔄 Fazendo login automaticamente...")
-                            st.session_state.cursos_temp = []
                             
                             # Fazer login automático após cadastro
                             professor = authenticate_professor(email, senha)
@@ -869,6 +913,37 @@ else:
     
     # Barra lateral com informações do usuário
     with st.sidebar:
+        # Logo do Nexus Education
+        st.markdown("""
+        <div class="logo-container">
+            <svg class="logo-network" viewBox="0 0 60 40" xmlns="http://www.w3.org/2000/svg">
+                <!-- Nó superior -->
+                <circle cx="30" cy="8" r="4" fill="#5271ff" stroke="none"/>
+                
+                <!-- Nós do meio -->
+                <circle cx="15" cy="20" r="4" fill="#5271ff" stroke="none"/>
+                <circle cx="45" cy="20" r="4" fill="#5271ff" stroke="none"/>
+                
+                <!-- Nós inferiores -->
+                <circle cx="8" cy="32" r="4" fill="#5271ff" stroke="none"/>
+                <circle cx="22" cy="32" r="4" fill="#5271ff" stroke="none"/>
+                <circle cx="38" cy="32" r="4" fill="#5271ff" stroke="none"/>
+                <circle cx="52" cy="32" r="4" fill="#5271ff" stroke="none"/>
+                
+                <!-- Conexões -->
+                <line x1="30" y1="12" x2="15" y2="16" stroke="#5271ff" stroke-width="2"/>
+                <line x1="30" y1="12" x2="45" y2="16" stroke="#5271ff" stroke-width="2"/>
+                <line x1="15" y1="24" x2="8" y2="28" stroke="#5271ff" stroke-width="2"/>
+                <line x1="15" y1="24" x2="22" y2="28" stroke="#5271ff" stroke-width="2"/>
+                <line x1="45" y1="24" x2="38" y2="28" stroke="#5271ff" stroke-width="2"/>
+                <line x1="45" y1="24" x2="52" y2="28" stroke="#5271ff" stroke-width="2"/>
+            </svg>
+            <h1 class="logo-text">Nexus</h1>
+            <p class="logo-subtitle">EDUCATION</p>
+            <div class="logo-line"></div>
+        </div>
+        """, unsafe_allow_html=True)
+        
         st.markdown(f"### 👋 Olá, {st.session_state.user_data['nome']}!")
         st.markdown(f"**Prontuário:** {st.session_state.user_data['prontuario']}")
         st.markdown(f"**Email:** {st.session_state.user_data['email_educacional']}")
@@ -889,47 +964,56 @@ else:
     if st.session_state.get('show_gerenciar_cursos', False):
         st.markdown("## ⚙️ Gerenciar Cursos e Disciplinas")
         
-        # Seção: Adicionar Novo Curso
-        st.markdown("### ➕ Adicionar Novo Curso")
+        # Seção: Selecionar Curso Existente
+        st.markdown("### 📚 Selecionar Curso")
         
-        with st.form("add_new_curso_form"):
-            col1, col2 = st.columns(2)
-            with col1:
-                novo_codigo_curso = st.text_input("Código do Curso", placeholder="Ex: ADS", max_chars=50)
-            with col2:
-                novo_nome_curso = st.text_input("Nome do Curso", placeholder="Ex: Análise e Desenvolvimento de Sistemas")
+        # Buscar todos os cursos disponíveis
+        todos_cursos = database.get_all_cursos()
+        
+        if todos_cursos:
+            # Buscar cursos já associados ao professor
+            cursos_professor = database.get_professor_courses(st.session_state.user_data['prontuario'])
+            cursos_professor_ids = [curso['codigo_curso'] for curso in cursos_professor]
             
-            nova_descricao_curso = st.text_area("Descrição do Curso", placeholder="Descreva o curso...", height=100)
+            # Filtrar cursos não associados
+            cursos_disponiveis = [curso for curso in todos_cursos if curso['codigo_curso'] not in cursos_professor_ids]
             
-            if st.form_submit_button("✅ Criar Curso", use_container_width=True, type="primary"):
-                if novo_codigo_curso and novo_nome_curso and nova_descricao_curso:
-                    try:
-                        # Criar curso
-                        curso_obj = Cursos(
-                            codigo_curso=novo_codigo_curso.upper(),
-                            nome=novo_nome_curso,
-                            descricao_curso=nova_descricao_curso
-                        )
-                        
-                        # Verificar se curso já existe
-                        curso_existente = database.get_curso_by_codigo(novo_codigo_curso.upper())
-                        
-                        if not curso_existente:
-                            # Criar curso
-                            database.create_curso(curso_obj.model_dump())
-                        
-                        # Vincular professor ao curso
-                        database.create_professor_curso_relationship(
-                            st.session_state.user_data['prontuario'],
-                            novo_codigo_curso.upper()
-                        )
-                        
-                        st.success(f"✅ Curso {novo_nome_curso} criado e vinculado com sucesso!")
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"❌ Erro ao criar curso: {str(e)}")
-                else:
-                    st.error("Preencha todos os campos!")
+            if cursos_disponiveis:
+                with st.form("select_curso_form"):
+                    st.markdown("**Selecione um curso para associar:**")
+                    
+                    # Criar opções para o selectbox
+                    opcoes_cursos = [f"{curso['codigo_curso']} - {curso['nome']}" for curso in cursos_disponiveis]
+                    
+                    curso_selecionado = st.selectbox(
+                        "Cursos Disponíveis",
+                        options=opcoes_cursos,
+                        index=None,
+                        placeholder="Escolha um curso..."
+                    )
+                    
+                    if st.form_submit_button("✅ Associar Curso", use_container_width=True, type="primary"):
+                        if curso_selecionado:
+                            try:
+                                # Extrair código do curso da opção selecionada
+                                codigo_curso = curso_selecionado.split(" - ")[0]
+                                
+                                # Vincular professor ao curso
+                                database.create_professor_curso_relationship(
+                                    st.session_state.user_data['prontuario'],
+                                    codigo_curso
+                                )
+                                
+                                st.success(f"✅ Curso associado com sucesso!")
+                                st.rerun()
+                            except Exception as e:
+                                st.error(f"❌ Erro ao associar curso: {str(e)}")
+                        else:
+                            st.error("Selecione um curso!")
+            else:
+                st.info("ℹ️ Todos os cursos disponíveis já estão associados ao seu perfil.")
+        else:
+            st.warning("⚠️ Nenhum curso cadastrado no sistema. Entre em contato com o administrador.")
         
         st.markdown("---")
         st.markdown("### 📚 Meus Cursos")
@@ -943,55 +1027,80 @@ else:
                     st.markdown(f"**Código:** {curso['codigo_curso']}")
                     st.markdown(f"**Nome:** {curso['nome']}")
                     
-                    # Botão de deletar curso
-                    st.markdown("---")
-                    
-                    # Inicializar estado de confirmação de exclusão de curso
-                    confirmar_key = f"confirmar_delete_curso_{curso['codigo_curso']}"
-                    if confirmar_key not in st.session_state:
-                        st.session_state[confirmar_key] = False
-                    
-                    if not st.session_state[confirmar_key]:
-                        if st.button("🗑️ Deletar Curso", key=f"delete_curso_{curso['codigo_curso']}", type="secondary", use_container_width=True):
-                            st.session_state[confirmar_key] = True
+                    # Botões de ação
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        if st.button("📖 Ver Disciplinas", key=f"view_disciplines_{curso['codigo_curso']}", use_container_width=True):
+                            st.session_state[f"show_disciplines_{curso['codigo_curso']}"] = True
                             st.rerun()
-                    else:
-                        st.warning(f"⚠️ **ATENÇÃO:** Você está prestes a deletar o curso **{curso['nome']}**!")
-                        st.warning("🔴 **Esta ação irá deletar em cascata:**")
-                        st.markdown("- ❌ Todas as análises relacionadas a este curso")
-                        st.markdown("- ❌ Todos os relacionamentos com disciplinas")
+                    
+                    with col2:
+                        if st.button("🗑️ Remover Curso", key=f"remove_course_{curso['codigo_curso']}", type="secondary", use_container_width=True):
+                            st.session_state[f"confirmar_delete_curso_{curso['codigo_curso']}"] = True
+                            st.rerun()
+                    
+                    # Exibir disciplinas se solicitado
+                    if st.session_state.get(f"show_disciplines_{curso['codigo_curso']}", False):
+                        st.markdown("---")
+                        st.markdown("### 📚 Disciplinas do Curso")
+                        
+                        # Buscar disciplinas do curso
+                        disciplinas_curso = database.get_curso_disciplines(curso['codigo_curso'])
+                        
+                        if disciplinas_curso:
+                            # Criar DataFrame para exibição
+                            df_disciplinas = pd.DataFrame(disciplinas_curso)
+                            df_disciplinas = df_disciplinas[['id_disciplina', 'nome', 'carga_horaria']]
+                            df_disciplinas.columns = ['Código', 'Nome da Disciplina', 'Carga Horária (h)']
+                            
+                            # Preencher valores nulos
+                            df_disciplinas['Carga Horária (h)'] = df_disciplinas['Carga Horária (h)'].fillna('Não informado')
+                            
+                            # Exibir tabela
+                            st.dataframe(df_disciplinas, use_container_width=True)
+                            
+                            # Estatísticas
+                            total_disciplinas = len(disciplinas_curso)
+                            total_horas = sum([disc.get('carga_horaria', 0) for disc in disciplinas_curso if isinstance(disc.get('carga_horaria'), (int, float))])
+                            
+                            col1, col2 = st.columns(2)
+                            with col1:
+                                st.metric("Total de Disciplinas", total_disciplinas)
+                            with col2:
+                                st.metric("Total de Horas", f"{total_horas}h")
+                        else:
+                            st.info("ℹ️ Nenhuma disciplina cadastrada para este curso.")
+                        
+                        # Botão para fechar visualização
+                        if st.button("❌ Fechar Disciplinas", key=f"close_disciplines_{curso['codigo_curso']}", use_container_width=True):
+                            st.session_state[f"show_disciplines_{curso['codigo_curso']}"] = False
+                            st.rerun()
+                    
+                        # Seção de confirmação de remoção
+                        st.warning(f"⚠️ **ATENÇÃO:** Você está prestes a remover o curso **{curso['nome']}**!")
+                        st.warning("🔴 **Esta ação irá remover:**")
                         st.markdown("- ❌ O vínculo do professor com este curso")
-                        st.markdown("- ❌ O curso em si")
+                        st.markdown("- ❌ Todas as análises relacionadas a este curso")
                         
                         col_a, col_b = st.columns(2)
                         with col_a:
-                            if st.button("✅ Confirmar Exclusão", key=f"confirm_delete_{curso['codigo_curso']}", type="primary"):
+                            if st.button("✅ Confirmar Remoção", key=f"confirm_remove_{curso['codigo_curso']}", type="primary"):
                                 try:
-                                    # 1. Deletar relacionamentos analise_curso
-                                    database.client.table("analise_curso").delete().eq("curso_fk", curso['codigo_curso']).execute()
+                                    # Remover relacionamento professor-curso
+                                    database.delete_professor_course_relationship(
+                                        st.session_state.user_data['prontuario'],
+                                        curso['codigo_curso']
+                                    )
                                     
-                                    # 2. Deletar relacionamentos curso-disciplinas
-                                    database.client.table("cursos_disciplina").delete().eq("curso_fk", curso['codigo_curso']).execute()
-                                    
-                                    # 3. Deletar relacionamentos curso-tags
-                                    database.client.table("curso_tags").delete().eq("curso_fk", curso['codigo_curso']).execute()
-                                    
-                                    # 4. Deletar relacionamento professor-curso
-                                    database.client.table("professor_curso").delete().eq("curso_fk", curso['codigo_curso']).eq("prontuario_professor", st.session_state.user_data['prontuario']).execute()
-                                    
-                                    # 5. Deletar curso
-                                    database.client.table("cursos").delete().eq("codigo_curso", curso['codigo_curso']).execute()
-                                    
-                                    st.success(f"✅ Curso {curso['nome']} deletado com sucesso!")
-                                    st.session_state[confirmar_key] = False
+                                    st.success(f"✅ Curso {curso['nome']} removido com sucesso!")
+                                    st.session_state[f"confirmar_delete_curso_{curso['codigo_curso']}"] = False
                                     st.rerun()
                                 except Exception as e:
-                                    st.error(f"❌ Erro ao deletar curso: {str(e)}")
-                                    st.session_state[confirmar_key] = False
+                                    st.error(f"❌ Erro ao remover curso: {str(e)}")
+                                    st.session_state[f"confirmar_delete_curso_{curso['codigo_curso']}"] = False
                         with col_b:
-                            if st.button("❌ Cancelar", key=f"cancel_delete_{curso['codigo_curso']}"):
-                                st.session_state[confirmar_key] = False
-                                st.info("Exclusão cancelada.")
+                            if st.button("❌ Cancelar", key=f"cancel_remove_{curso['codigo_curso']}"):
+                                st.session_state[f"confirmar_delete_curso_{curso['codigo_curso']}"] = False
                                 st.rerun()
                     
                     # Buscar disciplinas do curso
@@ -1086,6 +1195,14 @@ else:
             # Extrair código do curso selecionado
             course_code = selected_course.split(" - ")[0]
             
+            # VALIDAÇÃO DE SEGURANÇA: Verificar se o professor tem acesso a este curso
+            professor_has_access = any(curso['codigo_curso'] == course_code for curso in professor_courses)
+            
+            if not professor_has_access:
+                st.error(f"🚫 Acesso negado! Você não tem permissão para acessar o curso {course_code}")
+                st.warning("⚠️ Esta tentativa foi registrada por motivos de segurança.")
+                st.stop()  # Parar execução imediatamente
+            
             # Verificar se o curso mudou e limpar dados do curso anterior
             if 'selected_course' in st.session_state and st.session_state.selected_course != course_code:
                 # Limpar análises do curso anterior quando trocar de curso
@@ -1095,12 +1212,15 @@ else:
             # Atualizar o curso selecionado
             st.session_state.selected_course = course_code
             
-            # Mostrar informações do curso selecionado
+            # Mostrar informações do curso selecionado (já validado acima)
             curso_info = database.get_curso_by_codigo(course_code)
             if curso_info:
                 st.markdown(f"### 📚 {curso_info['nome']}")
                 st.markdown(f"**Código:** {curso_info['codigo_curso']}")
                 st.markdown(f"**Descrição:** {curso_info['descricao_curso']}")
+                
+                # Indicador de segurança
+                st.success("🔒 Acesso autorizado - Você tem permissão para este curso")
             else:
                 st.error(f"❌ Erro: Não foi possível carregar informações do curso {course_code}")
                 st.info("Tente selecionar o curso novamente.")
@@ -1620,7 +1740,7 @@ else:
             if 'analyses_data' in st.session_state and st.session_state.analyses_data:
                 st.markdown("#### 📊 Resultados das Análises")
                 
-                # Usar as análises recém-processadas
+                # Usar as análises recém-processadas (já filtradas por professor)
                 curso_analyses = st.session_state.analyses_data
                 
                 if curso_analyses:
@@ -1693,31 +1813,36 @@ else:
                     st.markdown("---")
                     st.markdown("### 👥 Todos os Alunos Analisados no Curso")
                     
-                    # Preparar dados para a tabela
-                    df_tabela = df_curso[['analise_id', 'nome_aluno', 'score', 'adequado', 'materias_restantes']].copy()
-                    df_tabela.columns = ['ID', 'Nome do Aluno', 'Score', 'Adequado', 'Matérias Restantes']
-                    df_tabela['Status'] = df_tabela['Adequado'].apply(lambda x: '✅ Adequado' if x else '❌ Não Adequado')
-                    df_tabela = df_tabela[['ID', 'Nome do Aluno', 'Score', 'Status', 'Matérias Restantes']]
-                    
-                    # Configurar tabela
-                    gb_curso = GridOptionsBuilder.from_dataframe(df_tabela)
-                    gb_curso.configure_pagination(paginationAutoPageSize=True)
-                    gb_curso.configure_column("Score", header_name="Score", sort="desc")
-                    gb_curso.configure_column("Status", header_name="Status")
-                    gb_curso.configure_selection(selection_mode="multiple", use_checkbox=True)
-                    gb_curso.configure_default_column(enablePivot=True, enableValue=True, enableRowGroup=True)
-                    
-                    grid_options_curso = gb_curso.build()
-                    
-                    # Exibir tabela
-                    response_curso = AgGrid(
-                        df_tabela,
-                        grid_options=grid_options_curso,
-                        enable_enterprise_modules=True,
-                        update_mode=GridUpdateMode.SELECTION_CHANGED,
-                        theme='streamlit',
-                        height=400
-                    )
+                    # Verificar se há dados para exibir
+                    if len(df_curso) > 0:
+                        # Preparar dados para a tabela
+                        df_tabela = df_curso[['analise_id', 'nome_aluno', 'score', 'adequado', 'materias_restantes']].copy()
+                        df_tabela.columns = ['ID', 'Nome do Aluno', 'Score', 'Adequado', 'Matérias Restantes']
+                        df_tabela['Status'] = df_tabela['Adequado'].apply(lambda x: '✅ Adequado' if x else '❌ Não Adequado')
+                        df_tabela = df_tabela[['ID', 'Nome do Aluno', 'Score', 'Status', 'Matérias Restantes']]
+                        
+                        # Configurar tabela
+                        gb_curso = GridOptionsBuilder.from_dataframe(df_tabela)
+                        gb_curso.configure_pagination(paginationAutoPageSize=True)
+                        gb_curso.configure_column("Score", header_name="Score", sort="desc")
+                        gb_curso.configure_column("Status", header_name="Status")
+                        gb_curso.configure_selection(selection_mode="multiple", use_checkbox=True)
+                        gb_curso.configure_default_column(enablePivot=True, enableValue=True, enableRowGroup=True)
+                        
+                        grid_options_curso = gb_curso.build()
+                        
+                        # Exibir tabela
+                        response_curso = AgGrid(
+                            df_tabela,
+                            grid_options=grid_options_curso,
+                            enable_enterprise_modules=True,
+                            update_mode=GridUpdateMode.SELECTION_CHANGED,
+                            theme='streamlit',
+                            height=400
+                        )
+                    else:
+                        st.info("📋 Nenhum aluno analisado encontrado para este curso.")
+                        response_curso = None
                     
                     # Detalhes automáticos ao selecionar (curso)
                     selected_rows_curso = response_curso.get('selected_rows', []) if response_curso else []
@@ -1797,6 +1922,61 @@ else:
                                     st.warning(f"Erro ao processar dados estruturados: {e}")
                             else:
                                 st.info("💡 Esta análise foi processada antes da implementação do sistema de extração estruturada")
+                    
+                    st.markdown("---")
+                
+                # Seção: Histórico de Análises do Professor (separado das análises recém-processadas)
+                if historico_analyses and len(historico_analyses) > 0:
+                    st.markdown("### 📚 Histórico de Análises do Professor")
+                    st.info(f"📋 Você possui {len(historico_analyses)} análise(s) histórica(s) para este curso.")
+                    
+                    # Criar DataFrame com análises históricas
+                    df_historico_professor = pd.DataFrame(historico_analyses)
+                    
+                    # Estatísticas do histórico do professor
+                    col1, col2, col3, col4 = st.columns(4)
+                    
+                    with col1:
+                        st.metric("📊 Total Histórico", len(historico_analyses))
+                    
+                    with col2:
+                        adequados_historico = len(df_historico_professor[df_historico_professor['adequado'] == True])
+                        st.metric("✅ Adequadas", adequados_historico)
+                    
+                    with col3:
+                        score_medio_historico = df_historico_professor['score'].mean()
+                        st.metric("📈 Score Médio", f"{score_medio_historico:.1f}")
+                    
+                    with col4:
+                        score_max_historico = df_historico_professor['score'].max()
+                        st.metric("🏆 Score Máximo", score_max_historico)
+                    
+                    # Tabela do histórico do professor
+                    st.markdown("#### 📋 Tabela do Histórico")
+                    df_tabela_historico_prof = df_historico_professor[['analise_id', 'nome_aluno', 'score', 'adequado', 'materias_restantes']].copy()
+                    df_tabela_historico_prof.columns = ['ID', 'Nome do Aluno', 'Score', 'Adequado', 'Matérias Restantes']
+                    df_tabela_historico_prof['Status'] = df_tabela_historico_prof['Adequado'].apply(lambda x: '✅ Adequado' if x else '❌ Não Adequado')
+                    df_tabela_historico_prof = df_tabela_historico_prof[['ID', 'Nome do Aluno', 'Score', 'Status', 'Matérias Restantes']]
+                    
+                    # Configurar tabela do histórico do professor
+                    gb_historico_prof = GridOptionsBuilder.from_dataframe(df_tabela_historico_prof)
+                    gb_historico_prof.configure_pagination(paginationAutoPageSize=True)
+                    gb_historico_prof.configure_column("Score", header_name="Score", sort="desc")
+                    gb_historico_prof.configure_column("Status", header_name="Status")
+                    gb_historico_prof.configure_selection(selection_mode="multiple", use_checkbox=True)
+                    gb_historico_prof.configure_default_column(enablePivot=True, enableValue=True, enableRowGroup=True)
+                    
+                    grid_options_historico_prof = gb_historico_prof.build()
+                    
+                    # Exibir tabela do histórico do professor
+                    response_historico_prof = AgGrid(
+                        df_tabela_historico_prof,
+                        grid_options=grid_options_historico_prof,
+                        enable_enterprise_modules=True,
+                        update_mode=GridUpdateMode.SELECTION_CHANGED,
+                        theme='streamlit',
+                        height=300
+                    )
                     
                     st.markdown("---")
                 
@@ -2173,31 +2353,36 @@ else:
                     st.markdown("---")
                     st.markdown("### 📋 Resumo das Análises")
                     
-                    # Exibir gráfico de barras
-                    st.markdown("##### 📈 Gráfico de Pontuações")
-                    chart_data = df[['Nome', 'Score']].set_index('Nome')
-                    st.bar_chart(chart_data)
-                    
-                    # Configurar tabela AgGrid
-                    gb = GridOptionsBuilder.from_dataframe(df)
-                    gb.configure_pagination(paginationAutoPageSize=True)
-                    gb.configure_column("Score", header_name="Score", sort="desc")
-                    gb.configure_column("Adequado", header_name="Adequado", cellRenderer="agCheckboxCellRenderer")
-                    gb.configure_selection(selection_mode="multiple", use_checkbox=True)
-                    gb.configure_default_column(enablePivot=True, enableValue=True, enableRowGroup=True)
-                    
-                    grid_options = gb.build()
-                    
-                    # Exibir tabela interativa
-                    st.markdown("##### 📊 Tabela de Análises")
-                    response = AgGrid(
-                        df,
-                        grid_options=grid_options,
-                        enable_enterprise_modules=True,
-                        update_mode=GridUpdateMode.SELECTION_CHANGED,
-                        theme='streamlit',
-                        height=300
-                    )
+                    # Verificar se há dados para exibir
+                    if len(df) > 0:
+                        # Exibir gráfico de barras
+                        st.markdown("##### 📈 Gráfico de Pontuações")
+                        chart_data = df[['Nome', 'Score']].set_index('Nome')
+                        st.bar_chart(chart_data)
+                        
+                        # Configurar tabela AgGrid
+                        gb = GridOptionsBuilder.from_dataframe(df)
+                        gb.configure_pagination(paginationAutoPageSize=True)
+                        gb.configure_column("Score", header_name="Score", sort="desc")
+                        gb.configure_column("Adequado", header_name="Adequado", cellRenderer="agCheckboxCellRenderer")
+                        gb.configure_selection(selection_mode="multiple", use_checkbox=True)
+                        gb.configure_default_column(enablePivot=True, enableValue=True, enableRowGroup=True)
+                        
+                        grid_options = gb.build()
+                        
+                        # Exibir tabela interativa
+                        st.markdown("##### 📊 Tabela de Análises")
+                        response = AgGrid(
+                            df,
+                            grid_options=grid_options,
+                            enable_enterprise_modules=True,
+                            update_mode=GridUpdateMode.SELECTION_CHANGED,
+                            theme='streamlit',
+                            height=300
+                        )
+                    else:
+                        st.info("📋 Nenhuma análise encontrada para exibir.")
+                        response = None
                 else:
                     # Para análise única, não exibir tabela
                     response = None
