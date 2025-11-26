@@ -21,14 +21,18 @@ class SupabaseDatabase:
             self.client: Client = supabase_config.get_client()
             self.service_client: Client = supabase_config.get_client(use_service_role=True)
             
-            if self.service_client:
+            # Usar Supabase se pelo menos o client (anon) estiver disponível
+            if self.client:
                 # Marcar que estamos usando Supabase
                 self.use_supabase = True
+                if not self.service_client:
+                    print("⚠️ SUPABASE_SERVICE_ROLE_KEY não configurada - usando anon key (algumas operações podem ter limitações)")
             else:
                 self._init_tinydb_fallback()
                 return
                 
         except Exception as e:
+            print(f"⚠️ Erro ao inicializar Supabase: {e}")
             self._init_tinydb_fallback()
     
     def _init_tinydb_fallback(self):
@@ -40,6 +44,14 @@ class SupabaseDatabase:
         except Exception as e:
             print(f"❌ Erro ao inicializar TinyDB: {e}")
             raise
+    
+    def _get_client(self, prefer_service_role: bool = False) -> Optional[Client]:
+        """Retorna o cliente apropriado (service_client se disponível, senão client)"""
+        if not self.use_supabase:
+            return None
+        if prefer_service_role and self.service_client:
+            return self.service_client
+        return self.client if self.client else self.service_client
     
     # ==================== AUTENTICAÇÃO E LOGIN ====================
     
@@ -131,12 +143,25 @@ class SupabaseDatabase:
             return False
     
     def create_professor(self, professor_data: Dict) -> Optional[Dict]:
-        """Cria um novo professor"""
+        """Cria um novo professor
+        
+        IMPORTANTE: Requer SERVICE_ROLE_KEY para bypassar RLS policies
+        """
         try:
-            response = self.client.table("professores").insert(professor_data).execute()
+            # Usar service_client para operações de escrita (bypass RLS)
+            client = self._get_client(prefer_service_role=True)
+            if not client:
+                print("❌ SERVICE_ROLE_KEY não configurada! Operações de escrita requerem service_role.")
+                print("📝 Configure SUPABASE_SERVICE_ROLE_KEY no arquivo .env")
+                print("🔍 Obtenha a chave em: Supabase Dashboard > Settings > API > service_role key")
+                return None
+            
+            response = client.table("professores").insert(professor_data).execute()
             return response.data[0] if response.data else None
         except Exception as e:
             print(f"Erro ao criar professor: {e}")
+            if "row-level security" in str(e).lower() or "42501" in str(e):
+                print("❌ Erro de RLS: Configure SUPABASE_SERVICE_ROLE_KEY para operações de escrita")
             return None
     
     # ==================== CONFIGURAÇÕES DE PERFIL ====================
@@ -221,9 +246,16 @@ class SupabaseDatabase:
             return []
     
     def create_curso(self, curso_data: Dict) -> Optional[Dict]:
-        """Cria um novo curso"""
+        """Cria um novo curso
+        
+        IMPORTANTE: Requer SERVICE_ROLE_KEY para bypassar RLS policies
+        """
         try:
-            response = self.client.table("cursos").insert(curso_data).execute()
+            client = self._get_client(prefer_service_role=True)
+            if not client:
+                print("❌ SERVICE_ROLE_KEY não configurada para criar curso!")
+                return None
+            response = client.table("cursos").insert(curso_data).execute()
             return response.data[0] if response.data else None
         except Exception as e:
             print(f"Erro ao criar curso: {e}")
@@ -268,57 +300,21 @@ class SupabaseDatabase:
             return []
     
     def create_disciplina(self, disciplina_data: Dict) -> Optional[Dict]:
-        """Cria uma nova disciplina"""
+        """Cria uma nova disciplina
+        
+        IMPORTANTE: Requer SERVICE_ROLE_KEY para bypassar RLS policies
+        """
         try:
-            response = self.client.table("disciplinas").insert(disciplina_data).execute()
+            client = self._get_client(prefer_service_role=True)
+            if not client:
+                print("❌ SERVICE_ROLE_KEY não configurada para criar disciplina!")
+                return None
+            response = client.table("disciplinas").insert(disciplina_data).execute()
             return response.data[0] if response.data else None
         except Exception as e:
             print(f"Erro ao criar disciplina: {e}")
             return None
     
-    def get_curso_tags(self, codigo_curso: str) -> List[Dict]:
-        """Busca todas as tags de um curso"""
-        try:
-            response = self.client.table("curso_tags").select("tag_fk").eq("curso_fk", codigo_curso).execute()
-            tag_ids = [rel['tag_fk'] for rel in response.data]
-            
-            tags = []
-            for tag_id in tag_ids:
-                tag = self.get_tag_by_id(tag_id)
-                if tag:
-                    tags.append(tag)
-            
-            return tags
-        except Exception as e:
-            print(f"Erro ao buscar tags do curso: {e}")
-            return []
-    
-    def get_tag_by_id(self, id_tag: int) -> Optional[Dict]:
-        """Busca tag por ID"""
-        try:
-            response = self.client.table("tags").select("*").eq("id_tag", id_tag).execute()
-            return response.data[0] if response.data else None
-        except Exception as e:
-            print(f"Erro ao buscar tag: {e}")
-            return None
-    
-    def get_all_tags(self) -> List[Dict]:
-        """Busca todas as tags cadastradas"""
-        try:
-            response = self.client.table("tags").select("*").execute()
-            return response.data
-        except Exception as e:
-            print(f"Erro ao buscar tags: {e}")
-            return []
-    
-    def create_tag(self, tag_data: Dict) -> Optional[Dict]:
-        """Cria uma nova tag"""
-        try:
-            response = self.client.table("tags").insert(tag_data).execute()
-            return response.data[0] if response.data else None
-        except Exception as e:
-            print(f"Erro ao criar tag: {e}")
-            return None
     
     # ==================== EMENTAS ====================
     
@@ -343,7 +339,8 @@ class SupabaseDatabase:
     def create_ementa(self, ementa_data: Dict) -> Optional[Dict]:
         """Cria uma nova ementa"""
         try:
-            response = self.client.table("ementas").insert(ementa_data).execute()
+            client = self._get_client(prefer_service_role=True) or self.client
+            response = client.table("ementas").insert(ementa_data).execute()
             return response.data[0] if response.data else None
         except Exception as e:
             print(f"Erro ao criar ementa: {e}")
@@ -412,7 +409,10 @@ class SupabaseDatabase:
     def get_all_analises(self) -> List[Dict]:
         """Busca todas as análises (para debug)"""
         try:
-            response = self.service_client.table("analises").select("*").execute()
+            client = self._get_client(prefer_service_role=True)
+            if not client:
+                return []
+            response = client.table("analises").select("*").execute()
             print(f"Total de análises no banco: {len(response.data)}")
             for analise in response.data:
                 print(f"  - ID: {analise.get('analise_id')}, Professor: {analise.get('professor_id')}, Aluno: {analise.get('nome_aluno')}")
@@ -482,31 +482,71 @@ class SupabaseDatabase:
             print(f"Análise ID: {analise_id}")
             print(f"Curso Código: {curso_codigo}")
             
+            # Validar dados
+            if not analise_id or not curso_codigo:
+                print(f"❌ Dados inválidos: analise_id={analise_id}, curso_codigo={curso_codigo}")
+                return False
+            
+            # Verificar se o relacionamento já existe
+            client = self._get_client(prefer_service_role=True)
+            if not client:
+                print("❌ Nenhum cliente Supabase disponível!")
+                return False
+            
+            print(f"Usando service_client: {self.service_client is not None}")
+            
+            # Verificar se relacionamento já existe
+            try:
+                existing = client.table("analise_curso").select("*").eq("analise_fk", analise_id).eq("curso_fk", curso_codigo).execute()
+                if existing.data and len(existing.data) > 0:
+                    print(f"ℹ️ Relacionamento já existe: {existing.data[0]}")
+                    print(f"{'='*60}\n")
+                    return True
+            except Exception as e:
+                print(f"⚠️ Erro ao verificar relacionamento existente: {e}")
+                # Continuar mesmo se houver erro na verificação
+            
             relacionamento_data = {
                 'analise_fk': analise_id,
                 'curso_fk': curso_codigo
             }
             
             print(f"Dados do relacionamento: {relacionamento_data}")
-            print(f"Usando service_client: {self.service_client is not None}")
             
-            # Usar service client para operações de escrita
-            response = self.service_client.table("analise_curso").insert(relacionamento_data).execute()
-            
-            print(f"Status da resposta: {response.status_code if hasattr(response, 'status_code') else 'N/A'}")
-            print(f"Dados retornados: {response.data}")
-            
-            if response.data and len(response.data) > 0:
-                print(f"✅ Relacionamento criado com sucesso!")
-                print(f"   ID do relacionamento: {response.data[0].get('id', 'N/A')}")
-                print(f"{'='*60}\n")
-                return True
-            else:
-                print(f"❌ Erro: Nenhum dado retornado")
-                if hasattr(response, 'error') and response.error:
-                    print(f"   Erro do Supabase: {response.error}")
-                print(f"{'='*60}\n")
-                return False
+            # Tentar inserir o relacionamento
+            try:
+                response = client.table("analise_curso").insert(relacionamento_data).execute()
+                
+                print(f"Status da resposta: {response.status_code if hasattr(response, 'status_code') else 'N/A'}")
+                print(f"Dados retornados: {response.data}")
+                
+                if response.data and len(response.data) > 0:
+                    print(f"✅ Relacionamento criado com sucesso!")
+                    print(f"   ID do relacionamento: {response.data[0].get('ac_id', response.data[0].get('id', 'N/A'))}")
+                    print(f"{'='*60}\n")
+                    return True
+                else:
+                    print(f"❌ Erro: Nenhum dado retornado")
+                    if hasattr(response, 'error') and response.error:
+                        print(f"   Erro do Supabase: {response.error}")
+                    # Verificar se é erro de UNIQUE (relacionamento já existe)
+                    if hasattr(response, 'error') and response.error:
+                        error_str = str(response.error)
+                        if 'unique' in error_str.lower() or 'duplicate' in error_str.lower():
+                            print(f"ℹ️ Relacionamento já existe (erro de UNIQUE), considerando sucesso")
+                            print(f"{'='*60}\n")
+                            return True
+                    print(f"{'='*60}\n")
+                    return False
+            except Exception as insert_error:
+                error_str = str(insert_error)
+                print(f"❌ Erro ao inserir relacionamento: {error_str}")
+                # Verificar se é erro de UNIQUE (relacionamento já existe)
+                if 'unique' in error_str.lower() or 'duplicate' in error_str.lower() or '23505' in error_str:
+                    print(f"ℹ️ Relacionamento já existe (erro de UNIQUE), considerando sucesso")
+                    print(f"{'='*60}\n")
+                    return True
+                raise  # Re-raise se não for erro de UNIQUE
                 
         except Exception as e:
             print(f"❌ ERRO ao criar relacionamento: {e}")
@@ -515,6 +555,106 @@ class SupabaseDatabase:
             print(traceback.format_exc())
             print(f"{'='*60}\n")
             return False
+    
+    def check_analise_exists_for_ementa_and_curso(self, ementa_id: int, curso_codigo: str) -> Optional[Dict]:
+        """Verifica se já existe uma análise para uma ementa e curso específicos"""
+        try:
+            print(f"🔍 [DEBUG] Verificando se existe análise para ementa {ementa_id} e curso {curso_codigo}")
+            
+            client = self._get_client(prefer_service_role=False)
+            if not client:
+                client = self._get_client(prefer_service_role=True)
+            if not client:
+                print("❌ Nenhum cliente Supabase disponível!")
+                return None
+            
+            # Buscar análises da ementa
+            analises_ementa = self.get_analises_by_ementa(ementa_id)
+            
+            if not analises_ementa or len(analises_ementa) == 0:
+                print(f"🔍 [DEBUG] Nenhuma análise encontrada para ementa {ementa_id}")
+                return None
+            
+            # Para cada análise, verificar se está relacionada ao curso
+            for analise in analises_ementa:
+                analise_id = analise.get('analise_id')
+                if analise_id:
+                    # Buscar cursos relacionados a esta análise
+                    analise_cursos = self.get_analise_cursos(analise_id)
+                    
+                    # Verificar se algum curso relacionado corresponde ao curso_codigo
+                    for curso_rel in analise_cursos:
+                        curso_cod = curso_rel.get('codigo_curso') or curso_rel.get('curso_fk')
+                        if curso_cod == curso_codigo:
+                            print(f"✅ Análise existente encontrada: ID {analise_id} para ementa {ementa_id} e curso {curso_codigo}")
+                            return analise
+            
+            print(f"🔍 [DEBUG] Nenhuma análise encontrada para ementa {ementa_id} relacionada ao curso {curso_codigo}")
+            return None
+            
+        except Exception as e:
+            print(f"❌ Erro ao verificar análise existente: {e}")
+            import traceback
+            print(f"Traceback: {traceback.format_exc()}")
+            return None
+    
+    def get_analise_cursos(self, analise_id: int) -> List[Dict]:
+        """Busca todos os cursos relacionados a uma análise"""
+        try:
+            print(f"🔍 [DEBUG] Buscando cursos para análise ID: {analise_id}")
+            client = self._get_client(prefer_service_role=False)
+            if not client:
+                client = self._get_client(prefer_service_role=True)
+            if not client:
+                print("❌ Nenhum cliente Supabase disponível!")
+                return []
+            
+            # Primeiro, tentar buscar com join
+            try:
+                response = client.table("analise_curso").select(
+                    """
+                    curso_fk,
+                    cursos!inner(
+                        codigo_curso,
+                        nome,
+                        descricao_curso
+                    )
+                    """
+                ).eq("analise_fk", analise_id).execute()
+                
+                print(f"🔍 [DEBUG] Resposta da busca: {response.data}")
+                
+                if response.data:
+                    cursos = []
+                    for item in response.data:
+                        if 'cursos' in item:
+                            cursos.append(item['cursos'])
+                        elif 'curso_fk' in item:
+                            # Se não tiver join, retornar apenas o código do curso
+                            cursos.append({'codigo_curso': item['curso_fk'], 'curso_fk': item['curso_fk']})
+                    print(f"🔍 [DEBUG] Cursos encontrados: {cursos}")
+                    return cursos
+                print(f"🔍 [DEBUG] Nenhum curso encontrado para análise {analise_id}")
+                return []
+            except Exception as e:
+                print(f"❌ Erro ao buscar cursos da análise: {e}")
+                import traceback
+                print(f"Traceback: {traceback.format_exc()}")
+                # Tentar busca simples sem join
+                try:
+                    response = client.table("analise_curso").select("curso_fk").eq("analise_fk", analise_id).execute()
+                    if response.data:
+                        cursos = [{'codigo_curso': item['curso_fk'], 'curso_fk': item['curso_fk']} for item in response.data]
+                        print(f"🔍 [DEBUG] Cursos encontrados (busca simples): {cursos}")
+                        return cursos
+                except Exception as e2:
+                    print(f"❌ Erro na busca simples: {e2}")
+                return []
+        except Exception as e:
+            print(f"❌ Erro geral ao buscar cursos da análise: {e}")
+            import traceback
+            print(f"Traceback: {traceback.format_exc()}")
+            return []
     
     def get_analises_by_curso_usando_relacionamento(self, curso_codigo: str) -> List[Dict]:
         """Busca análises de um curso usando a tabela de relacionamento
@@ -749,8 +889,11 @@ class SupabaseDatabase:
     def test_analises_table(self) -> bool:
         """Testa se a tabela analises existe e está acessível"""
         try:
+            client = self._get_client(prefer_service_role=True)
+            if not client:
+                return False
             # Tentar buscar dados da tabela analises
-            response = self.service_client.table("analises").select("*").limit(1).execute()
+            response = client.table("analises").select("*").limit(1).execute()
             print("✅ Tabela 'analises' existe e está acessível")
             return True
         except Exception as e:
@@ -780,15 +923,26 @@ class SupabaseDatabase:
             );
             """
             
-            # Executar SQL usando RPC
-            response = self.service_client.rpc('exec_sql', {'sql': create_table_sql}).execute()
-            print("✅ Tabela 'analises' criada com sucesso")
-            return True
+            # Executar SQL usando RPC (precisa service_role, mas tentar com client se não disponível)
+            client = self._get_client(prefer_service_role=True)
+            if not client:
+                print("⚠️ Service role não disponível, tentando método alternativo...")
+                return False
+            try:
+                response = client.rpc('exec_sql', {'sql': create_table_sql}).execute()
+                print("✅ Tabela 'analises' criada com sucesso")
+                return True
+            except:
+                # RPC pode não estar disponível, tentar método alternativo
+                pass
             
         except Exception as e:
             print(f"❌ Erro ao criar tabela 'analises': {e}")
             # Tentar método alternativo - inserir um registro de teste
             try:
+                client = self._get_client(prefer_service_role=True)
+                if not client:
+                    return False
                 test_data = {
                     'nome_aluno': 'Teste',
                     'ementa_fk': 1,
@@ -798,7 +952,7 @@ class SupabaseDatabase:
                     'materias_restantes': 'Nenhuma',
                     'professor_id': 'TEST12345'
                 }
-                response = self.service_client.table("analises").insert(test_data).execute()
+                response = client.table("analises").insert(test_data).execute()
                 print("✅ Tabela 'analises' existe (teste de inserção)")
                 return True
             except Exception as e2:
@@ -812,10 +966,14 @@ class SupabaseDatabase:
             if not self.use_supabase:
                 return self._create_analise_tinydb(analise_data, curso_codigo)
             
-            # Verificar se service_client está disponível
-            if not self.service_client:
-                print("❌ Service client não está disponível!")
-                return None
+            # Verificar se algum cliente está disponível
+            client = self._get_client(prefer_service_role=True)
+            if not client:
+                print("⚠️ Cliente Supabase não está disponível! Tentando com anon key...")
+                client = self._get_client(prefer_service_role=False)
+                if not client:
+                    print("❌ Nenhum cliente Supabase disponível!")
+                    return None
             
             # Testar se a tabela existe
             if not self.test_analises_table():
@@ -832,13 +990,28 @@ class SupabaseDatabase:
             
             print(f"🔍 [DEBUG] Todos os campos obrigatórios estão presentes")
             
-            # Limpar dados antes de inserir (remover campos None ou vazios)
-            clean_data = {k: v for k, v in analise_data.items() if v is not None and v != ""}
+            # Limpar dados antes de inserir (remover campos None ou vazios, mas manter campos opcionais válidos)
+            clean_data = {}
+            for k, v in analise_data.items():
+                # Manter campos obrigatórios mesmo se vazios (exceto None)
+                if k in required_fields:
+                    if v is not None:
+                        clean_data[k] = v
+                # Manter campos opcionais se tiverem valor
+                elif v is not None and v != "":
+                    clean_data[k] = v
+            
+            # Garantir que todos os campos obrigatórios estão presentes
+            for field in required_fields:
+                if field not in clean_data:
+                    print(f"❌ Campo obrigatório '{field}' está faltando após limpeza")
+                    return None
+            
             print(f"🔍 [DEBUG] Dados limpos para inserção: {clean_data}")
             
-            # Usar service client para operações de escrita
+            # Usar cliente apropriado para operações de escrita
             print(f"🔍 [DEBUG] Enviando requisição para Supabase...")
-            response = self.service_client.table("analises").insert(clean_data).execute()
+            response = client.table("analises").insert(clean_data).execute()
             
             print(f"🔍 [DEBUG] Resposta do Supabase: {response}")
             print(f"🔍 [DEBUG] Dados retornados: {response.data}")
@@ -846,16 +1019,45 @@ class SupabaseDatabase:
             
             if response.data and len(response.data) > 0:
                 analise_created = response.data[0]
-                print(f"✅ Análise criada com sucesso: {analise_created}")
+                analise_id = analise_created.get('analise_id')
+                print(f"✅ Análise criada com sucesso! ID: {analise_id}")
+                print(f"   Nome do aluno: {analise_created.get('nome_aluno', 'N/A')}")
+                print(f"   Score: {analise_created.get('score', 'N/A')}")
+                print(f"   Adequado: {analise_created.get('adequado', 'N/A')}")
+                print(f"   Ementa FK: {analise_created.get('ementa_fk', 'N/A')}")
+                print(f"   Professor ID: {analise_created.get('professor_id', 'N/A')}")
                 
                 # Se foi fornecido um código de curso, criar relacionamento
-                if curso_codigo and analise_created.get('analise_id'):
+                if curso_codigo and analise_id:
                     print(f"🔍 [DEBUG] Criando relacionamento com curso {curso_codigo}")
-                    relacionamento_success = self.create_analise_curso_relacionamento(analise_created['analise_id'], curso_codigo)
+                    print(f"   Análise ID: {analise_id}")
+                    print(f"   Curso Código: {curso_codigo}")
+                    
+                    # Tentar criar relacionamento múltiplas vezes se necessário
+                    relacionamento_success = False
+                    max_retries = 3
+                    for attempt in range(1, max_retries + 1):
+                        print(f"🔍 [DEBUG] Tentativa {attempt}/{max_retries} de criar relacionamento...")
+                        relacionamento_success = self.create_analise_curso_relacionamento(analise_id, curso_codigo)
+                        if relacionamento_success:
+                            break
+                        if attempt < max_retries:
+                            import time
+                            time.sleep(0.5)  # Aguardar um pouco antes de tentar novamente
+                    
                     if relacionamento_success:
-                        print(f"✅ Relacionamento criado com sucesso")
+                        print(f"✅ Relacionamento analise_curso criado com sucesso!")
+                        print(f"   Análise ID: {analise_id} <-> Curso: {curso_codigo}")
                     else:
-                        print(f"⚠️ Falha ao criar relacionamento, mas análise foi salva")
+                        print(f"⚠️ Falha ao criar relacionamento após {max_retries} tentativas")
+                        print(f"   Análise foi salva com ID: {analise_id}")
+                        print(f"   Tente criar o relacionamento manualmente se necessário")
+                        print(f"   SQL: INSERT INTO analise_curso (analise_fk, curso_fk) VALUES ({analise_id}, '{curso_codigo}');")
+                else:
+                    if not curso_codigo:
+                        print(f"⚠️ Nenhum código de curso fornecido, relacionamento não será criado")
+                    if not analise_id:
+                        print(f"⚠️ ID da análise não retornado, relacionamento não pode ser criado")
                 
                 return analise_created
             else:
@@ -930,7 +1132,8 @@ class SupabaseDatabase:
                 return False  # Relacionamento já existe, mas não é um erro
             
             # Criar novo relacionamento
-            response = self.client.table("professor_curso").insert({
+            client = self._get_client(prefer_service_role=True) or self.client
+            response = client.table("professor_curso").insert({
                 "prontuario_professor": prontuario_professor,
                 "curso_fk": codigo_curso
             }).execute()
@@ -949,7 +1152,8 @@ class SupabaseDatabase:
     def create_curso_disciplina_relationship(self, codigo_curso: str, id_disciplina: str) -> bool:
         """Cria relacionamento entre curso e disciplina"""
         try:
-            response = self.client.table("cursos_disciplina").insert({
+            client = self._get_client(prefer_service_role=True) or self.client
+            response = client.table("cursos_disciplina").insert({
                 "curso_fk": codigo_curso,
                 "disciplina_fk": id_disciplina
             }).execute()
@@ -961,7 +1165,8 @@ class SupabaseDatabase:
     def create_ementa_disciplina_relationship(self, id_ementa: int, id_disciplina: str) -> bool:
         """Cria relacionamento entre ementa e disciplina"""
         try:
-            response = self.client.table("ementa_disciplina").insert({
+            client = self._get_client(prefer_service_role=True) or self.client
+            response = client.table("ementa_disciplina").insert({
                 "ementa_fk": id_ementa,
                 "disciplina_fk": id_disciplina
             }).execute()
@@ -970,19 +1175,96 @@ class SupabaseDatabase:
             print(f"Erro ao criar relacionamento ementa-disciplina: {e}")
             return False
     
-    def create_curso_tag_relationship(self, codigo_curso: str, id_tag: int) -> bool:
-        """Cria relacionamento entre curso e tag"""
+    # ==================== MÉTODOS DE DELETE ====================
+    
+    def update_analise_comentario(self, analise_id: int, comentario: str, professor_id: str) -> bool:
+        """Atualiza o comentário de uma análise"""
         try:
-            response = self.client.table("curso_tags").insert({
-                "curso_fk": codigo_curso,
-                "tag_fk": id_tag
-            }).execute()
-            return len(response.data) > 0
+            # Verificar se a análise existe e pertence ao professor
+            analise_data = self.get_analise_by_id(analise_id)
+            if not analise_data:
+                print(f"❌ Análise {analise_id} não encontrada")
+                return False
+            
+            if analise_data.get('professor_id') != professor_id:
+                print(f"❌ Professor não tem permissão para atualizar esta análise")
+                return False
+            
+            # Se não estamos usando Supabase, usar TinyDB
+            if not self.use_supabase:
+                return self._update_analise_comentario_tinydb(analise_id, comentario, professor_id)
+            
+            # Verificar se algum cliente está disponível
+            client = self._get_client(prefer_service_role=True)
+            if not client:
+                client = self._get_client(prefer_service_role=False)
+                if not client:
+                    print("❌ Nenhum cliente Supabase disponível!")
+                    return False
+            
+            # Atualizar comentário
+            # Nota: Se a coluna 'comentario' não existir na tabela, o Supabase retornará erro
+            # Nesse caso, será necessário adicionar a coluna manualmente no banco
+            update_data = {
+                'comentario': comentario if comentario else None,
+                'updated_at': datetime.now().isoformat()
+            }
+            
+            try:
+                response = client.table("analises").update(update_data).eq("analise_id", analise_id).eq("professor_id", professor_id).execute()
+                
+                if response.data and len(response.data) > 0:
+                    print(f"✅ Comentário atualizado com sucesso para análise {analise_id}")
+                    return True
+                else:
+                    print(f"⚠️ Nenhum dado retornado na atualização do comentário")
+                    # Verificar se é erro de coluna não existente
+                    if hasattr(response, 'error') and response.error:
+                        error_msg = str(response.error)
+                        if 'column' in error_msg.lower() and 'comentario' in error_msg.lower():
+                            print(f"❌ Coluna 'comentario' não existe na tabela 'analises'")
+                            print(f"   Execute: ALTER TABLE analises ADD COLUMN comentario TEXT;")
+                    return False
+            except Exception as update_error:
+                error_msg = str(update_error)
+                if 'column' in error_msg.lower() and 'comentario' in error_msg.lower():
+                    print(f"❌ Coluna 'comentario' não existe na tabela 'analises'")
+                    print(f"   Execute no Supabase SQL Editor:")
+                    print(f"   ALTER TABLE analises ADD COLUMN comentario TEXT;")
+                else:
+                    print(f"❌ Erro ao atualizar comentário: {update_error}")
+                return False
+                
         except Exception as e:
-            print(f"Erro ao criar relacionamento curso-tag: {e}")
+            print(f"❌ Erro ao atualizar comentário: {e}")
+            import traceback
+            print(f"🔍 [DEBUG] Traceback completo: {traceback.format_exc()}")
             return False
     
-    # ==================== MÉTODOS DE DELETE ====================
+    def _update_analise_comentario_tinydb(self, analise_id: int, comentario: str, professor_id: str) -> bool:
+        """Atualiza comentário usando TinyDB como fallback"""
+        try:
+            from tinydb import Query
+            analise = Query()
+            
+            # Verificar se a análise existe e pertence ao professor
+            analise_data = self.tinydb.analise.search(
+                (analise.analise_id == analise_id) & 
+                (analise.prontuario_professor == professor_id)
+            )
+            
+            if not analise_data:
+                return False
+            
+            # Atualizar comentário
+            self.tinydb.analise.update(
+                {'comentario': comentario},
+                analise.analise_id == analise_id
+            )
+            return True
+        except Exception as e:
+            print(f"❌ Erro ao atualizar comentário no TinyDB: {e}")
+            return False
     
     def delete_analise(self, analise_id: int, professor_id: str) -> bool:
         """Deleta uma análise específica, verificando se o professor tem permissão"""
